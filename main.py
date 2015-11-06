@@ -4,8 +4,8 @@ import trainFunc
 ###
 #set initial train circumstance
 
-inputDataTrain, keyOrderTrain = IO.readFile('data/mfcc/try1.ark')
-label = IO.readLabel('data/label/try1.lab', 48)
+inputDataTrain, keyOrderTrain = IO.readFile('data/mfcc/try1.ark', 'dnn')
+label = IO.readLabel('data/label/try1.lab', 48, 'dnn')
 # trainFunc.batchSize = 1
 inputBatchesTr, labelBatchesTr = trainFunc.makeBatch(inputDataTrain, keyOrderTrain, label, 'train')
 
@@ -14,7 +14,7 @@ inputBatchesTr, labelBatchesTr = trainFunc.makeBatch(inputDataTrain, keyOrderTra
 trainFunc.training(100, inputBatchesTr, labelBatchesTr)
 
 #set initial test circumstance
-inputDataTest, keyOrderTest = IO.readFile('data/mfcc/test.ark')
+inputDataTest, keyOrderTest = IO.readFile('data/mfcc/try1.ark', 'dnn')
 inputBatchesTest, nothing= trainFunc.makeBatch(inputDataTest, keyOrderTest, [], 'test')
 ###
 #start testing

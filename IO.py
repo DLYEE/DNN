@@ -1,11 +1,11 @@
 import numpy as np
 import re
 
-
-# input data is a 2-dim list
-def readFile(f):
-
-    inputData = {}
+def readFile(f, nnType):
+    if nnType == 'dnn':
+        inputData = {}
+    elif nnType == 'rnn':
+        inputData = []
     keyOrder = []
     my_file = open(f,"r+")
     for line in open(f):
@@ -13,16 +13,19 @@ def readFile(f):
         s = re.split(" |\n",line)
         s.pop()
         s[1:] = [float(x) for x in s[1:]]
-        inputData[s[0]] = np.asarray(s[1:])
+        if nnType == 'dnn':
+            inputData[s[0]] = np.asarray(s[1:])
+        elif nnType == 'rnn':
+            inputData.append(np.asarray(s[1:]))
         keyOrder.append(s[0])
     my_file.close()
     return inputData, keyOrder
 
-
-# input data is a 2-dim list
-def readLabel(f, featureSize):
-
-    label = {}
+def readLabel(f, featureSize, nnType):
+    if nnType == 'dnn':
+        label = {}
+    elif nnType == 'rnn':
+        label = []
     my_file = open(f,'r+')
     for line in open(f):
         line = my_file.readline()
@@ -35,7 +38,10 @@ def readLabel(f, featureSize):
                 labelElement.append(1)
             else:
                 labelElement.append(0)
-        label[s[0]] = np.asarray(labelElement)
+        if nnType == 'dnn':
+            label[s[0]] = np.asarray(labelElement)
+        elif nnType == 'rnn':
+            label.append(np.asarray(labelElement))
     my_file.close()
     return label
 
