@@ -2,6 +2,7 @@ import theano
 import theano.tensor as T
 import numpy as np
 import time
+import rnnClass
 import dnnClass
 import IO
 
@@ -28,7 +29,7 @@ def makeBatch(inputData, keyOrder, label, mode):
 trainingMode = T.scalar('''dtype='float32' ''')
 inputDataFeature = T.matrix('''dtype='float32' ''')
 labelFeature = T.matrix('''dtype='float32' ''')
-neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 128, 48], 5E-4)
+neuralNetwork = rnnClass.RNN(trainingMode, inputDataFeature, [48, 128, 48], 5E-4)
 
 
 neuralNetwork.feedforward()
