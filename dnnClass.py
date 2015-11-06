@@ -54,20 +54,16 @@ class DNN:
                 )
         )
         self._parameter.extend(self._intranets[self._intranetNum-1]._parameter)
-        self._rmgParameter = []
+        self._movement = np.zeros(len(self._parameter))
         self._rng = np.random.RandomState(1234)
 
 
-    def update(self, gParameter) :
-    # Maintain root mean square of the gradient to update learning rate
+    def update(self, gParameter, eta) :
     # update parameter set , movement set
-        if len(self._rmgParameter) == 0 :
-            self._rmgParameter = [T.max(gp, 1E-9) for gp in gParameter]
-        else :
-            self._rmgParameter = [ (rmgp ** 2 + gp ** 2) ** 0.5
-                for rmgp , gp in zip(self._rmgParameter , gParameter) ]
-        return [ (p,p - self._lr * gp ) # Why / rmgp is wrong ?????
-                for p, rmgp, gp in zip(self._parameter, self._rmgParameter, gParameter) ]
+        self._movement = [(eta * v - self._lr * gp) for v, gp in zip(self._movement, gParameter)]
+        
+        return [ (p,p + v ) # Why / rmgp is wrong ?????
+                for p, v in zip(self._parameter, self._movement) ]
 
     def forward(self, input, intranet) :
         intranet._output = T.transpose(T.dot(intranet._weight, T.transpose(input))+ intranet._bias.dimshuffle(0,'x'))

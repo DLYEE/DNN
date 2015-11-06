@@ -42,7 +42,7 @@ grad = T.grad(cost, neuralNetwork._parameter)
 train = theano.function(
     on_unused_input = 'ignore',
     inputs = [trainingMode, inputDataFeature, labelFeature],
-    updates = neuralNetwork.update(grad),
+    updates = neuralNetwork.update(grad, 0.9),
     outputs = [cost] + [g.norm(2) for g in grad]
 )
 
