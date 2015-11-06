@@ -52,15 +52,15 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder):
         outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
         file.write(keyOrder[index] + ',' + outputData[keyOrder[index]] + '\n')
     file.close()
-    np.savetxt(f2, possibilityVectors, delimiter=",")
-    # file = open(f2,"w")
-    # for index in range(len(keyOrder)):
-        # file.write(keyOrder[index] + ',')
-        # # file.write(possibilityVector[keyOrder[index]].tobytes())
-        # np.savetxt(f2, possibilityVector[keyOrder[index]])
-        # # possibilityVector[keyOrder[index]].tofile(f2, "text")
-        # file.write('\n')
-    # file.close()
+    file = open(f2,"w")
+    for line in possibilityVectors:
+        for index in range(len(line)):
+            if index != len(line) - 1:
+                file.write(str(line[index]) + " ")
+            else:
+                file.write(str(line[index]))
+        file.write('\n')
+    file.close()
 
 
 
@@ -181,7 +181,7 @@ def str2int(string):
     if value != -1:
         return value
     else:
-        print "input string is not fit!\n"
+        print ("input string is not fit!\n")
 
 
 def int2str(num):
@@ -285,4 +285,4 @@ def int2str(num):
     if string != "":
         return string
     else:
-        print "input number is not available!\n"
+        print ("input number is not available!\n")
