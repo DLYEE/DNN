@@ -19,28 +19,16 @@ class InterNetwork:
         self._oNeuronNum = oNeuronNum
         # self._train = train
 
-    def activate(self) :
-        if self._activateType == 'ReLU':
-            # pass
-            self._output = T.switch(self._output < 0, 0, self._output)
-
-        elif self._activateType == 'SoftMax':
-            MAX = T.max(self._output,1)
-            self._output = self._output - MAX.dimshuffle(0,'x')
-            self._output = T.exp(self._output)
-            self._output = self._output/T.sum(self._output,1).dimshuffle(0,'x')
-        else:
-            raise ValueError
-
 class DNN:
 
     def __init__(self, mode, input, layerSizes, lr):
     # layer_sizes is a np array of integers
+    # mode : 1 -> train, 0 -> test
         self._input = input
         self._parameter         = []
-        self._intranets      = []
+        self._intranets         = []
         self._layerSizes        = layerSizes
-        self._intranetNum    = len(layerSizes) - 1
+        self._intranetNum       = len(layerSizes) - 1
         self._lr                = lr
         self._mode = mode
         self._output = T.matrix('''dtype='float32' ''')
@@ -82,6 +70,20 @@ class DNN:
     def forward(self, input, intranet) :
         intranet._output = T.transpose(T.dot(intranet._weight, T.transpose(input))+ intranet._bias.dimshuffle(0,'x'))
 
+    def activate(self, intranet) :
+        if intranet._activateType == 'ReLU':
+            # pass
+            intranet._output = T.switch(intranet._output < 0, 0, intranet._output)
+            # dropout
+
+        elif intranet._activateType == 'SoftMax':
+            MAX = T.max(intranet._output,1)
+            intranet._output = intranet._output - MAX.dimshuffle(0,'x')
+            intranet._output = T.exp(intranet._output)
+            intranet._output = intranet._output/T.sum(intranet._output,1).dimshuffle(0,'x')
+        else:
+            raise ValueError
+
     def dropout(self, intranet, rng) :
         if intranet._activateType == 'ReLU':
             srng = T.shared_randomstreams.RandomStreams(seed = rng.randint(2 ** 30))
@@ -93,18 +95,19 @@ class DNN:
     def feedforward(self) :
         #forward first intranet 
         self.forward(self._input,self._intranets[0])
-        self._intranets[0].activate()
+        self.activate(self._intranets[0])
         self.dropout(self._intranets[0], self._rng)
         
         #forward hidden intranet 
         for i in range(1, self._intranetNum-1) :
             self.forward(self._intranets[i-1]._output,self._intranets[i])
-            self._intranets[i].activate()
+            self.activate(self._intranets[i])
             self.dropout(self._intranets[i], self._rng)
 
         #forward last intranet 
         self.forward(self._intranets[self._intranetNum-2]._output,self._intranets[self._intranetNum-1])
-        self._intranets[self._intranetNum-1].activate()
+        self.activate(self._intranets[self._intranetNum-1])
         self.dropout(self._intranets[self._intranetNum-1], self._rng)
 
         self._output = self._intranets[self._intranetNum-1]._output
+    
