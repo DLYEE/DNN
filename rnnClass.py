@@ -5,6 +5,12 @@ import numpy as np
 import random
 
 # Need to initialize values in line 105, 111, 134, 135, 162
+class MemoryNetwork(dnnClass.InterNetwork):
+
+    def __init__(self, iNeuronNum, oNeuronNum, activateType):
+        # self._input = []
+        dnnClass.InterNetwork.__init__(self, iNeuronNum, oNeuronNum, activateType):
+        self._weight = theano.shared(np.identity(oNeuronNum) / 100)
 
 class RNN(dnnClass.DNN):
 
@@ -19,23 +25,22 @@ class RNN(dnnClass.DNN):
         # initialize memories
         for i in range(0, self._intranetNum):
             self._memories.append(
-                dnnClass.InterNetwork(
+                MemoryNetwork(
                     iNeuronNum = self._layerSizes[i+1],
                     oNeuronNum = self._layerSizes[i+1],
                     activateType = 'ReLU',
                 )
             )
-            self._memories[-1]._output = theano.shared(np.zeros(layerSizes[0]))
             self._parameter.extend(self._memories[-1]._parameter)
         # No need to memorize y(the output of Rnn)
         # so the size of memories = intranetNum - 1
 
 
 
-    def forward(self, networkInput, memory, intranet) :
+    def forward(self, networkInput, memory, intranet, a_tm1) :
         # input1 is the output of prev intranet
         # input2 is the memorized intranet output
-            intranet._output = memory._output = T.transpose(T.dot(intranet._weight, T.transpose(networkInput)) + intranet._bias.dimshuffle(0,'x'))                                                + T.transpose(T.dot(memory._weight, T.transpose(memory._output)))
+            intranet._output = memory._output = T.transpose(T.dot(intranet._weight, T.transpose(networkInput)) + intranet._bias.dimshuffle(0,'x'))                                                + T.transpose(T.dot(memory._weight, T.transpose(a_tm1)))
 
     def activate(self, intranet) :
         if intranet._activateType == 'ReLU':
@@ -52,27 +57,27 @@ class RNN(dnnClass.DNN):
             raise ValueError
 
 
-    def feedforward(self) :
+    def feedforward(self, a_tm1List) :
         #forward first intranet 
-        self.forward(self._input, self._memories[0], self._intranets[0])
+        self.forward(self._input, self._memories[0], self._intranets[0], a_tm1List[0])
         self.activate(self._intranets[0])
         self._memoryList.append(self._intranets[0]._output)
 
         #forward hidden intranet 
-        for i in range(1, self._intranetNum-1) :
-            self.forward(self._intranets[i-1]._output, self._memories[i], self._intranets[i])
+        for i in range(1, self._intranetNum) :
+            self.forward(self._intranets[i-1]._output, self._memories[i], self._intranets[i], a_tm1List[i])
             self.activate(self._intranets[i])
             self._memoryList.append(self._intranets[i]._output)
 
-        #forward last intranet 
-        # self._aPrev[0] & self._memories[0] are only useless inputs
-        self.forward(self._intranets[self._intranetNum-2]._output, self._memories[self._intranetNum-1], self._intranets[self._intranetNum-1])
-        self.activate(self._intranets[self._intranetNum-1])
-        self._memoryList.append(self._intranets[self._intranetNum-1]._output)
-
-        self._memoryList = T.stack(self._memoryList)
+        # #forward last intranet 
+        # # self._aPrev[0] & self._memories[0] are only useless inputs
+        # self.forward(self._intranets[self._intranetNum-2]._output, self._memories[self._intranetNum-1], self._intranets[self._intranetNum-1], a_tm1List[-1])
+        # self.activate(self._intranets[self._intranetNum-1])
+        # self._memoryList.append(self._intranets[self._intranetNum-1]._output)
 
         self._output = self._intranets[self._intranetNum-1]._output
+
+        return T.stack(self._memoryList)
 
 
     def update(self, gParameter) :
