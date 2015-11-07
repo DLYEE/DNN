@@ -75,7 +75,9 @@ def trimOutput(f1, f2):
     file.write('id,phone_sequence' + '\n')
     file.write(frames[0][0] + "_" + frames[0][1] + ",")
     file.write(frames[0][3])
-    for index in range(1:len(frames)):
+    for index in range(len(frames)):
+        if index == 0:
+            continue
         if frames[index][:2] == frames[index-1][:2]:
             if frames[index][3] != frames[index-1][3]:
                 file.write(frames[index][3])
