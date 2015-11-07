@@ -2,7 +2,6 @@ import theano
 import theano.tensor as T
 import numpy as np
 import time
-import rnnClass
 import dnnClass
 import IO
 
@@ -29,7 +28,8 @@ def makeBatch(inputData, keyOrder, label, mode):
 trainingMode = T.scalar('''dtype='float32' ''')
 inputDataFeature = T.matrix('''dtype='float32' ''')
 labelFeature = T.matrix('''dtype='float32' ''')
-neuralNetwork = rnnClass.RNN(trainingMode, inputDataFeature, [48, 128, 48], 5E-4)
+outputDataFeature = T.vector('''dtype='float32' ''')
+neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 128, 48], 5E-4)
 
 
 neuralNetwork.feedforward()
@@ -42,7 +42,7 @@ grad = T.grad(cost, neuralNetwork._parameter)
 train = theano.function(
     on_unused_input = 'ignore',
     inputs = [trainingMode, inputDataFeature, labelFeature],
-    updates = neuralNetwork.update(grad),
+    updates = neuralNetwork.update(grad, 0.9),
     outputs = [cost] + [g.norm(2) for g in grad]
 )
 

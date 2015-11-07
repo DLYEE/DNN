@@ -19,6 +19,7 @@ class InterNetwork:
         self._oNeuronNum = oNeuronNum
         # self._train = train
 
+
 class DNN:
 
     def __init__(self, mode, input, layerSizes, lr):
@@ -34,6 +35,7 @@ class DNN:
         self._output = T.matrix('''dtype='float32' ''')
         # self._output =
 
+        # initialize first and hidden intranets
         for i in range(0, self._intranetNum-1):
             self._intranets.append(
                 InterNetwork(
@@ -52,15 +54,16 @@ class DNN:
                 )
         )
         self._parameter.extend(self._intranets[self._intranetNum-1]._parameter)
-        self._rmgParameter = []
+        self._movement = np.zeros(len(self._parameter))
         self._rng = np.random.RandomState(1234)
 
 
-    def update(self, gParameter) :
-    # Maintain root mean square of the gradient to update learning rate
+    def update(self, gParameter, eta) :
     # update parameter set , movement set
-        return [ (p,p - self._lr * gp) # Why / rmgp is wrong ?????
-                for p, gp in zip(self._parameter, gParameter) ]
+        self._movement = [(eta * v - self._lr * gp) for v, gp in zip(self._movement, gParameter)]
+        
+        return [ (p,p + v ) # Why / rmgp is wrong ?????
+                for p, v in zip(self._parameter, self._movement) ]
 
     def forward(self, input, intranet) :
         intranet._output = T.transpose(T.dot(intranet._weight, T.transpose(input))+ intranet._bias.dimshuffle(0,'x'))
