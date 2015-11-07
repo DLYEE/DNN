@@ -34,7 +34,7 @@ def readLabel(f, featureSize):
     return label
 
 
-def writeFile(f1, f2, possibilityVectors, outputData, keyOrder):
+def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, phoneNum):
 
     file = open(f1,"w")
     file.write('Id,Prediction' + '\n')
@@ -43,7 +43,8 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder):
             # print index, keyOrder[index]
             if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-        outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
+        if phoneNum == 39:
+            outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
         file.write(keyOrder[index] + ',' + outputData[keyOrder[index]] + '\n')
     file.close()
     file = open(f2,"w")
@@ -56,6 +57,31 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder):
         file.write('\n')
     file.close()
 
+
+def trimOutput(f1, f2):
+
+    my_file = open(f,"r+")
+    frames = []
+    for line in open(f):
+        line = my_file.readline()
+        if line[:2] == 'Id':
+            continue
+        else:
+            phone = re.split("_|,|\n",line)
+            phone.pop()
+            frames.append(phone)
+    my_file.close()
+    file = open(f,"w")
+    file.write('id,phone_sequence' + '\n')
+    file.write(frames[0][0] + "_" + frames[0][1] + ",")
+    file.write(frames[0][3])
+    for index in range(1:len(frames)):
+        if frames[index][:2] == frames[index-1][:2]:
+            if frames[index][3] != frames[index-1][3]:
+                file.write(frames[index][3])
+        else:
+            file.write("\n")
+    file.close()
 
 
 def mrg48to39(string):

@@ -20,4 +20,4 @@ inputBatchesTest, nothing= trainFunc.makeBatch(inputDataTest, keyOrderTest, [], 
 #start testing
 outputDataTest, possibilityVectors = trainFunc.testing(inputBatchesTest, keyOrderTest)
 
-IO.writeFile('predict.csv', 'possibility.txt', possibilityVectors, outputDataTest, keyOrderTest)
+IO.writeFile('predict.csv', 'possibility.txt', possibilityVectors, outputDataTest, keyOrderTest, 39)
