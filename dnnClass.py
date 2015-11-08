@@ -59,7 +59,7 @@ class DNN:
     def update(self, gParameter, eta) :
     # update parameter set , movement set
         self._movement = [(eta * v - self._lr * gp).astype(dtype='float32') for v, gp in zip(self._movement, gParameter)]
-        print ([v for v in self._movement])
+        # print ([v for v in self._movement])
         # print (self._movement[0].type.dtype)
         # print ((eta * v - self._lr * gp).type.dtype for v, gp in zip(self._movement, gParameter))
 

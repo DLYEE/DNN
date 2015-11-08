@@ -1,13 +1,13 @@
 import theano
 import theano.tensor as T
 import dnnClass
-batchSize = 1
+batchSize = 20
 
 trainingMode = T.scalar(dtype='float32' )
 inputDataFeature = T.matrix(dtype='float32' )
 labelFeature = T.matrix(dtype='float32' )
 outputDataFeature = T.vector(dtype='float32' )
-neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 128, 48], 5E-4)
+neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 1024, 48], 2E-4)
 
 neuralNetwork.feedforward()
 cost = neuralNetwork.costGenerate(labelFeature, batchSize)
