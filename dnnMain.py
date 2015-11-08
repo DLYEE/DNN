@@ -4,8 +4,8 @@ import dnnMainFunc
 ###
 #set initial train circumstance
 
-inputDataTrain, keyOrderTrain = IO.readFile('data/mfcc/try1.ark')
-label = IO.readLabel('data/label/try1.lab', 48)
+inputDataTrain, keyOrderTrain = IO.readFile('data/mfcc/train.ark')
+label = IO.readLabel('data/label/train.lab', 48)
 # dnnMainFunc.batchSize = 1
 inputBatchesTr, labelBatchesTr = dnnMainFunc.makeBatch(inputDataTrain, keyOrderTrain, label, 'train')
 
@@ -20,4 +20,4 @@ inputBatchesTest, nothing= dnnMainFunc.makeBatch(inputDataTest, keyOrderTest, []
 #start testing
 outputDataTest, possibilityVectors = dnnMainFunc.testing(inputBatchesTest, keyOrderTest)
 
-IO.writeFile('predict.csv', 'possibility.txt', possibilityVectors, outputDataTest, keyOrderTest)
+IO.writeFile('predict.csv', 'possibility.txt', possibilityVectors, outputDataTest, keyOrderTest, 39)
