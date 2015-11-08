@@ -5,7 +5,7 @@ import time
 import dnnClass
 import IO
 
-batchSize = 1
+batchSize = 20
 print ('batchsize =', batchSize)
 
 def makeBatch(inputData, keyOrder, label, mode):
@@ -25,11 +25,11 @@ def makeBatch(inputData, keyOrder, label, mode):
     return inputBatches, labelBatches
 ###
 
-trainingMode = T.scalar('''dtype='float32' ''')
-inputDataFeature = T.matrix('''dtype='float32' ''')
-labelFeature = T.matrix('''dtype='float32' ''')
-outputDataFeature = T.vector('''dtype='float32' ''')
-neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 128, 48], 5E-4)
+trainingMode = T.scalar(dtype='float32')
+inputDataFeature = T.matrix(dtype='float32')
+labelFeature = T.matrix(dtype='float32')
+outputDataFeature = T.vector(dtype='float32')
+neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 128, 48], 5E-8)
 
 
 neuralNetwork.feedforward()
@@ -38,12 +38,15 @@ for i in range(1, batchSize):
     cost += -T.log( neuralNetwork._output[i][T.argmax(labelFeature[i])] )
 
 grad = T.grad(cost, neuralNetwork._parameter)
+# print (cost.type.dtype)
+# print (grad)
+# print (grad[0].type.dtype)
 
 train = theano.function(
     on_unused_input = 'ignore',
     inputs = [trainingMode, inputDataFeature, labelFeature],
     updates = neuralNetwork.update(grad, 0.9),
-    outputs = [cost] + [g.norm(2) for g in grad]
+    outputs = [cost] + [g.norm(2) for g in grad] + neuralNetwork._movement
 )
 
 test = theano.function(
@@ -62,10 +65,10 @@ def training(epochNum ,inputBatches, labelBatches):
         for i in range(len(inputBatches)):
             zz = train(1, inputBatches[i].astype(dtype='float32'), labelBatches[i].astype(dtype='float32'))
             cst.append(zz[0])
-            grad.append(zz[1:])
+            grad.append(zz[1])
+            print(zz[2])
         print ("Cost = ", (np.mean(cst)/batchSize))
-        print ("Gradient = ",(np.mean(grad)/batchSize))
-        # print grad
+        print ("Gradient = ", (np.mean(grad)/batchSize))
         tEnd = time.time()
         print ("It cost %f sec" % (tEnd - tStart))
 

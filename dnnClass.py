@@ -9,8 +9,8 @@ class InterNetwork:
 
     def __init__(self, iNeuronNum, oNeuronNum, activateType):
         # self._input = []
-        self._weight = theano.shared((np.random.randn(oNeuronNum, iNeuronNum) / (iNeuronNum**0.5) ))
-        self._bias = theano.shared(np.random.randn(oNeuronNum))
+        self._weight = theano.shared(np.random.randn(oNeuronNum, iNeuronNum).astype(dtype='float32') / (iNeuronNum**0.5) )
+        self._bias = theano.shared(np.random.randn(oNeuronNum).astype(dtype='float32'))
         self._activateType = activateType
         self._output = []
         # self._output = T.transpose(T.dot(self._weight, T.transpose(self._input))+self._bias.dimshuffle(0,'x'))
@@ -31,8 +31,9 @@ class DNN:
         self._layerSizes        = layerSizes
         self._intranetNum       = len(layerSizes) - 1
         self._lr                = lr
+        print ('lr =', lr)
         self._mode = mode
-        self._output = T.matrix('''dtype='float32' ''')
+        self._output = T.matrix(dtype='float32')
         # self._output =
 
         # initialize first and hidden intranets
@@ -45,7 +46,7 @@ class DNN:
                 )
             )
             self._parameter.extend(self._intranets[i]._parameter)
-        
+
         self._intranets.append(
                 InterNetwork(
                     iNeuronNum = self._layerSizes[self._intranetNum-1],
@@ -54,14 +55,17 @@ class DNN:
                 )
         )
         self._parameter.extend(self._intranets[self._intranetNum-1]._parameter)
-        self._movement = np.zeros(len(self._parameter))
+        self._movement = np.zeros(len(self._parameter)).astype(dtype='float32')
         self._rng = np.random.RandomState(1234)
 
 
     def update(self, gParameter, eta) :
     # update parameter set , movement set
-        self._movement = [(eta * v - self._lr * gp) for v, gp in zip(self._movement, gParameter)]
-        
+        self._movement = [(eta * v - self._lr * gp).astype(dtype='float32') for v, gp in zip(self._movement, gParameter)]
+        print ([v for v in self._movement])
+        # print (self._movement[0].type.dtype)
+        # print ((eta * v - self._lr * gp).type.dtype for v, gp in zip(self._movement, gParameter))
+
         return [ (p,p + v ) # Why / rmgp is wrong ?????
                 for p, v in zip(self._parameter, self._movement) ]
 
@@ -86,26 +90,26 @@ class DNN:
         if intranet._activateType == 'ReLU':
             srng = T.shared_randomstreams.RandomStreams(seed = rng.randint(2 ** 30))
             if self._mode == 1:
-                intranet._output = intranet._output * srng.binomial(size = (intranet._oNeuronNum), p = 0.5)
+                intranet._output = intranet._output * srng.binomial(size = (intranet._oNeuronNum), p = 0.5, dtype='float32')
             else:
                 intranet._output = intranet._output * 0.5
 
     def feedforward(self) :
-        #forward first intranet 
+        #forward first intranet
         self.forward(self._input,self._intranets[0])
         self.activate(self._intranets[0])
         self.dropout(self._intranets[0], self._rng)
-        
-        #forward hidden intranet 
+
+        #forward hidden intranet
         for i in range(1, self._intranetNum-1) :
             self.forward(self._intranets[i-1]._output,self._intranets[i])
             self.activate(self._intranets[i])
             self.dropout(self._intranets[i], self._rng)
 
-        #forward last intranet 
+        #forward last intranet
         self.forward(self._intranets[self._intranetNum-2]._output,self._intranets[self._intranetNum-1])
         self.activate(self._intranets[self._intranetNum-1])
         self.dropout(self._intranets[self._intranetNum-1], self._rng)
 
         self._output = self._intranets[self._intranetNum-1]._output
-    
+
