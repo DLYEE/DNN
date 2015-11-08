@@ -1,11 +1,11 @@
 import IO
-import rnnTrainFunc
+import trainFunc
 
 ###
 #set initial train circumstance
 
-inputDataTrain, keyOrderTrain = IO.readFile('data/mfcc/dnnOutput.ark')
-label = IO.readLabel('data/label/try1.lab', 48)
+inputDataTrain, keyOrderTrain = IO.readFile('data/mfcc/train.ark')
+label = IO.readLabel('data/label/train.lab', 48)
 # trainFunc.batchSize = 1
 inputBatchesTr, labelBatchesTr = trainFunc.makeBatch(inputDataTrain, keyOrderTrain, label, 'train')
 
@@ -14,11 +14,10 @@ inputBatchesTr, labelBatchesTr = trainFunc.makeBatch(inputDataTrain, keyOrderTra
 trainFunc.training(10, inputBatchesTr, labelBatchesTr)
 
 #set initial test circumstance
-inputDataTest, keyOrderTest = IO.readFile('data/mfcc/dnnOutput.ark')
+inputDataTest, keyOrderTest = IO.readFile('data/mfcc/test.ark')
 inputBatchesTest, nothing= trainFunc.makeBatch(inputDataTest, keyOrderTest, [], 'test')
 ###
 #start testing
 outputDataTest, possibilityVectors = trainFunc.testing(inputBatchesTest, keyOrderTest)
 
-IO.writeFile('predict.csv', 'possibility.txt', possibilityVectors, outputDataTest, keyOrderTest, 48)
-IO.trimOutput('predict.csv', 'solution.csv')
+IO.writeFile('predict.csv', 'possibility.txt', possibilityVectors, outputDataTest, keyOrderTest, 39)
