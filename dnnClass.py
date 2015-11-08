@@ -13,11 +13,9 @@ class InterNetwork:
         self._bias = theano.shared(np.random.randn(oNeuronNum).astype(dtype='float32'))
         self._activateType = activateType
         self._output = []
-        # self._output = T.transpose(T.dot(self._weight, T.transpose(self._input))+self._bias.dimshuffle(0,'x'))
         self._parameter = [self._weight, self._bias]
         self._iNeuronNum = iNeuronNum
         self._oNeuronNum = oNeuronNum
-        # self._train = train
 
 
 class DNN:
@@ -25,16 +23,15 @@ class DNN:
     def __init__(self, mode, input, layerSizes, lr):
     # layer_sizes is a np array of integers
     # mode : 1 -> train, 0 -> test
-        self._input = input
         self._parameter         = []
         self._intranets         = []
         self._layerSizes        = layerSizes
         self._intranetNum       = len(layerSizes) - 1
         self._lr                = lr
         print ('lr =', lr)
-        self._mode = mode
         self._output = T.matrix(dtype='float32')
-        # self._output =
+        self._input = input
+        self._mode = mode
 
         # initialize first and hidden intranets
         for i in range(0, self._intranetNum-1):
@@ -55,9 +52,9 @@ class DNN:
                 )
         )
         self._parameter.extend(self._intranets[self._intranetNum-1]._parameter)
-        self._movement = np.zeros(len(self._parameter)).astype(dtype='float32')
+        self._movement = np.ones(len(self._parameter)).astype(dtype='float32') / 1E8
         self._rng = np.random.RandomState(1234)
-
+        
 
     def update(self, gParameter, eta) :
     # update parameter set , movement set
@@ -113,3 +110,15 @@ class DNN:
 
         self._output = self._intranets[self._intranetNum-1]._output
 
+    def costGenerate(self, labelFeature, batchSize) :
+        cost = -T.log( self._output[0][T.argmax(labelFeature[0])] )
+        for i in range(1, batchSize):
+            cost += -T.log( self._output[i][T.argmax(labelFeature[i])] )
+        return cost
+
+    def calculateGrad(self, cost) :
+        return T.grad(cost, self._parameter)
+
+    
+
+    
