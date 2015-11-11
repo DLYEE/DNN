@@ -7,7 +7,7 @@ trainingMode = T.scalar(dtype='float32' )
 inputDataFeature = T.matrix(dtype='float32' )
 labelFeature = T.matrix(dtype='float32' )
 outputDataFeature = T.vector(dtype='float32' )
-neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [39, 1024, 48], 2E-4)
+neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [108, 1024, 48], 5E-5)
 
 neuralNetwork.feedforward()
 cost = neuralNetwork.costGenerate(labelFeature, batchSize)

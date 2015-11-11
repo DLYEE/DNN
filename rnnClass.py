@@ -9,7 +9,7 @@ class MemoryNetwork(dnnClass.InterNetwork):
 
     def __init__(self, iNeuronNum, oNeuronNum, activateType):
         # self._input = []
-        dnnClass.InterNetwork.__init__(self, iNeuronNum, oNeuronNum, activateType):
+        dnnClass.InterNetwork.__init__(self, iNeuronNum, oNeuronNum, activateType)
         self._weight = theano.shared(np.identity(oNeuronNum) / 100)
 
 class RNN(dnnClass.DNN):
@@ -19,11 +19,11 @@ class RNN(dnnClass.DNN):
     # mode : 1 -> train, 0 -> test
         dnnClass.DNN.__init__(self, mode, input, layerSizes, lr)
         # self._aPrev             = a_0
-        self._memoryList             = []
-        self._memories          = []        # memorys of intranet outputs
+        self._memoryList = []
+        self._memories   = []        # memorys of intranet outputs
 
         # initialize memories
-        for i in range(0, self._intranetNum):
+        for i in range(0, self._intranetNum-1):
             self._memories.append(
                 MemoryNetwork(
                     iNeuronNum = self._layerSizes[i+1],
@@ -32,6 +32,14 @@ class RNN(dnnClass.DNN):
                 )
             )
             self._parameter.extend(self._memories[-1]._parameter)
+        self._memories.append(
+            MemoryNetwork(
+                iNeuronNum = self._layerSizes[self._intranetNum],
+                oNeuronNum = self._layerSizes[self._intranetNum],
+                activateType = 'SoftMax',
+            )
+        )
+        self._parameter.extend(self._memories[-1]._parameter)
         # No need to memorize y(the output of Rnn)
         # so the size of memories = intranetNum - 1
 

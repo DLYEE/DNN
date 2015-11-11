@@ -10,10 +10,32 @@ def readFile(f):
         s = re.split(" |\n",line)
         s.pop()
         s[1:] = [float(x) for x in s[1:]]
-        inputData[s[0]] = np.asarray(s[1:])
+        inputData[s[0]] = s[1:]
         keyOrder.append(s[0])
     my_file.close()
     return inputData, keyOrder
+
+def dnnReadFile(f1, f2):
+    inputData = {}
+    keyOrder = []
+    my_file = open(f1,"r+")
+    for line in open(f1):
+        line = my_file.readline()
+        s = re.split(" |\n",line)
+        s.pop()
+        s[1:] = [float(x) for x in s[1:]]
+        inputData[s[0]] = s[1:]
+        keyOrder.append(s[0])
+    my_file.close()
+    my_file = open(f2,"r+")
+    for line in open(f2):
+        line = my_file.readline()
+        s = re.split(" |\n",line)
+        s.pop()
+        s[1:] = [float(x) for x in s[1:]]
+        inputData[s[0]] = np.asarray(inputData[s[0]] + s[1:])
+    return inputData, keyOrder
+
 
 def readLabel(f, featureSize):
     label = {}
@@ -34,7 +56,7 @@ def readLabel(f, featureSize):
     return label
 
 
-def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, phoneNum):
+def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
 
     file = open(f1,"w")
     file.write('Id,Prediction' + '\n')
@@ -43,19 +65,19 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, phoneNum):
             # print index, keyOrder[index]
             if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-        if phoneNum == 39:
-            outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
+        outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
         file.write(keyOrder[index] + ',' + outputData[keyOrder[index]] + '\n')
     file.close()
-    file = open(f2,"w")
-    for line in possibilityVectors:
-        for index in range(len(line)):
-            if index != len(line) - 1:
-                file.write(str(line[index]) + " ")
-            else:
-                file.write(str(line[index]))
-        file.write('\n')
-    file.close()
+    if nnType == 'dnn':
+        file = open(f2,"w")
+        for line in possibilityVectors:
+            for index in range(len(line)):
+                if index != len(line) - 1:
+                    file.write(str(line[index]) + " ")
+                else:
+                    file.write(str(line[index]))
+            file.write('\n')
+        file.close()
 
 
 def trimOutput(f1, f2):

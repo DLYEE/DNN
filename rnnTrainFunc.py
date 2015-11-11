@@ -44,36 +44,43 @@ def activate(output, activateType) :
 trainingMode = T.scalar()
 x_seq = T.matrix()
 y_hat_seq = T.matrix()
-a_seq = T.tensor3()
-y_seq = T.matrix()
+layerSizes = [48, 32, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
-layerSizes = [48, 128, 48]
 layerRange = T.vector()
-neuralNetwork = RNN(trainingMode, x_seq, layerSizes, 1E-4)
+neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-4)
 
-def step(z_t, a_tm1):
+def stepReLU(z_tm1, a_tm1, Wh):
     global neuralNetwork
-    return activate(z_t + T.transepose(T.dot(neuralNetwork._memories[0]._weight, T.transpose(a_tm1))))
+    print 'type of z_tm1 is', type(z_tm1)
+    print 'type of a_tm1 is', type(a_tm1)
+    a_t= activate(z_tm1 + T.transpose(T.dot(Wh, T.transpose(a_tm1))), 'ReLU')
+    return a_t
 
 # feedforward
 # first layer
 z1_seq = T.transpose(T.dot(x_seq, neuralNetwork._intranets[0]._weight) + neuralNetwork._intranets[0]._bias.dimshuffle(0,'x'))
+wh1 = neuralNetwork._memories[0]._weight
 a_seq,_ = theano.scan(
-        step,
+        fn = stepReLU,
         sequences = z1_seq,
         outputs_info = a_0,
-        non_sequences = layerRange[0],
-        truncate_gradient=-1
+        non_sequences = neuralNetwork._memories[0]._weight
+        # truncate_gradient=-1
         )
+
+def stepSoftMax(z_t, a_tm1, Wh):
+    global neuralNetwork
+    return activate(z_t + T.transpose(T.dot(Wh, T.transpose(a_tm1))), 'SoftMax')
+
 # second layer
 z2_seq = T.transpose(T.dot(a_seq, neuralNetwork._intranets[1]._weight) + neuralNetwork._intranets[1]._bias.dimshuffle(0,'x'))
 y_seq,_ = theano.scan(
-        step,
+        fn = stepSoftMax,
         sequences = z2_seq,
-        outputs_info = a_0,
-        non_sequences = layerRange[1],
-        truncate_gradient=-1
+        outputs_info = y_0,
+        non_sequences = neuralNetwork._memories[1]._weight
+        # truncate_gradient=-1
         )
 # output & cost/grad caculation
 neuralNetwork._output = y_seq
@@ -102,7 +109,7 @@ def training(epochNum ,inputBatches, labelBatches):
         cst = []
         grad = []
         for i in range(len(inputBatches)):
-            zz = train(1, inputBatches[i].astype(dtype='float32'), labelBatches[i].astype(dtype='float32'), range(1,3))
+            zz = train(1, inputBatches[i].astype(dtype='float32'), labelBatches[i].astype(dtype='float32'), range(2))
             cst.append(zz[0])
             grad.append(zz[1:])
         print ("Cost = ", (np.mean(cst)/batchSize))
@@ -118,7 +125,7 @@ def testing(inputBatches, keyOrder):
     possibilityVectors= []
 
     for i in range(len(inputBatches)):
-        tO = test(0, inputBatches[i].astype(dtype='float32'), range(1,3))               #testoutput
+        tO = test(0, inputBatches[i].astype(dtype='float32'), range(2))               #testoutput
         index = batchSize * i                       #'i' is the number of keyBatches & 'index' is the number of keyOrder
         for j in range(batchSize):
             if index+j < len(keyOrder):
