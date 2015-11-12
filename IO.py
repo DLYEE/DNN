@@ -10,7 +10,7 @@ def readFile(f):
         s = re.split(" |\n",line)
         s.pop()
         s[1:] = [float(x) for x in s[1:]]
-        inputData[s[0]] = s[1:]
+        inputData[s[0]] = np.asarray(s[1:])
         keyOrder.append(s[0])
     my_file.close()
     return inputData, keyOrder

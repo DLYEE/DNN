@@ -1,7 +1,7 @@
 import theano
 import theano.tensor as T
 import dnnClass
-batchSize = 20
+batchSize = 3
 
 trainingMode = T.scalar('''dtype='float32' ''')
 inputDataFeature = T.matrix('''dtype='float32' ''')

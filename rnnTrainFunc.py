@@ -6,7 +6,7 @@ import rnnClass
 import dnnClass
 import IO
 
-batchSize = 5
+batchSize = 3
 print ('batchsize =', batchSize)
 
 def makeBatch(inputData, keyOrder, label, mode):
@@ -48,19 +48,17 @@ y_hat_seq = T.matrix()
 layerSizes = [48, 32, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
-layerRange = T.vector()
+# layerRange = T.vector()
 neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-4)
 
 def stepReLU(z_tm1, a_tm1, Wh):
     global neuralNetwork
-    # print 'type of z_tm1 is', type(z_tm1)
-    # print 'type of a_tm1 is', type(a_tm1)
-    a_t= activate(z_tm1 + T.transpose(T.dot(Wh, T.transpose(a_tm1))), 'ReLU')
+    a_t= activate(z_tm1 + T.dot(Wh, a_tm1), 'ReLU')
     return a_t
 
 # feedforward
 # first layer
-z1_seq = T.transpose(T.dot(x_seq, neuralNetwork._intranets[0]._weight) + neuralNetwork._intranets[0]._bias.dimshuffle(0,'x'))
+z1_seq = T.transpose(T.dot(neuralNetwork._intranets[0]._weight, T.transpose(x_seq)) + neuralNetwork._intranets[0]._bias.dimshuffle(0,'x'))
 a_seq,_ = theano.scan(
         fn = stepReLU,
         sequences = z1_seq,
@@ -69,12 +67,13 @@ a_seq,_ = theano.scan(
         truncate_gradient=-1
         )
 
-def stepSoftMax(z_t, a_tm1, Wh):
+def stepSoftMax(z_tm1, y_tm1, Wh):
     global neuralNetwork
-    return activate(z_t + T.transpose(T.dot(Wh, T.transpose(a_tm1))), 'SoftMax')
+    y_t = activate(z_tm1 + T.dot(Wh, y_tm1), 'SoftMax')
+    return y_t
 
 # second layer
-z2_seq = T.transpose(T.dot(a_seq, neuralNetwork._intranets[1]._weight) + neuralNetwork._intranets[1]._bias.dimshuffle(0,'x'))
+z2_seq = T.transpose(T.dot(neuralNetwork._intranets[1]._weight, T.transpose(a_seq)) + neuralNetwork._intranets[1]._bias.dimshuffle(0,'x'))
 y_seq,_ = theano.scan(
         fn = stepSoftMax,
         sequences = z2_seq,
@@ -82,10 +81,9 @@ y_seq,_ = theano.scan(
         non_sequences = neuralNetwork._memories[1]._weight,
         truncate_gradient=-1
         )
+
 # output & cost/grad caculation
 neuralNetwork._output = y_seq
-# a_0.set_value(a_seq[-1].eval())
-# y_0.set_value(y_seq[-1].eval())
 cost = -T.log( y_seq[0][T.argmax(y_hat_seq[0])] )
 for i in range(batchSize):
     cost += -T.log( y_seq[i][T.argmax(y_hat_seq[i])] )
@@ -93,14 +91,14 @@ grad = T.grad(cost, neuralNetwork._parameter)
 
 train = theano.function(
     on_unused_input = 'ignore',
-    inputs = [trainingMode, x_seq, y_hat_seq, layerRange],
+    inputs = [trainingMode, x_seq, y_hat_seq],
     outputs = [cost] + [g.norm(2) for g in grad],
-    updates = neueralNetwork.update(grad)
+    updates = neuralNetwork.update(grad)
 )
 
 test = theano.function(
     on_unused_input = 'ignore',
-    inputs = [trainingMode, x_seq, layerRange],
+    inputs = [trainingMode, x_seq],
     outputs = neuralNetwork._output
 )
 
@@ -113,7 +111,7 @@ def training(epochNum ,inputBatches, labelBatches):
         cst = []
         grad = []
         for i in range(len(inputBatches)):
-            zz = train(1, inputBatches[i], labelBatches[i], range(2))
+            zz = train(1, inputBatches[i], labelBatches[i])
             cst.append(zz[0])
             grad.append(zz[1:])
         print ("Cost = ", (np.mean(cst)/batchSize))
@@ -129,7 +127,7 @@ def testing(inputBatches, keyOrder):
     possibilityVectors= []
 
     for i in range(len(inputBatches)):
-        tO = test(0, inputBatches[i], range(2))               #testoutput
+        tO = test(0, inputBatches[i])               #testoutput
         index = batchSize * i                       #'i' is the number of keyBatches & 'index' is the number of keyOrder
         for j in range(batchSize):
             if index+j < len(keyOrder):
