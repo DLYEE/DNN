@@ -28,7 +28,7 @@ def training(epochNum ,inputBatches, labelBatches):
         cst = []
         grad = []
         for i in range(len(inputBatches)):
-            zz = dnnTrainFunc.train(1, inputBatches[i].astype(dtype='float32'), labelBatches[i].astype(dtype='float32'))
+            zz = dnnTrainFunc.train(1, inputBatches[i], labelBatches[i])
             cst.append(zz[0])
             grad.append(zz[1:])
         print ("Cost = ", (np.mean(cst)/dnnTrainFunc.batchSize))
@@ -43,7 +43,7 @@ def testing(inputBatches, keyOrder):
     possibilityVectors= []
 
     for i in range(len(inputBatches)):
-        tO = dnnTrainFunc.test(0, inputBatches[i].astype(dtype='float32'))      #testoutput
+        tO = dnnTrainFunc.test(0, inputBatches[i])      #testoutput
         index = dnnTrainFunc.batchSize * i                                      #'i' is the number of keyBatches & 'index' is the number of keyOrder
         for j in range(dnnTrainFunc.batchSize):
             if index+j < len(keyOrder):

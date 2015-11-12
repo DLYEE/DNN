@@ -3,10 +3,10 @@ import theano.tensor as T
 import dnnClass
 batchSize = 20
 
-trainingMode = T.scalar(dtype='float32' )
-inputDataFeature = T.matrix(dtype='float32' )
-labelFeature = T.matrix(dtype='float32' )
-outputDataFeature = T.vector(dtype='float32' )
+trainingMode = T.scalar('''dtype='float32' ''')
+inputDataFeature = T.matrix('''dtype='float32' ''')
+labelFeature = T.matrix('''dtype='float32' ''')
+outputDataFeature = T.vector('''dtype='float32' ''')
 neuralNetwork = dnnClass.DNN(trainingMode, inputDataFeature, [108, 1024, 48], 5E-5)
 
 neuralNetwork.feedforward()

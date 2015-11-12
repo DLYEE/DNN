@@ -9,8 +9,8 @@ class InterNetwork:
 
     def __init__(self, iNeuronNum, oNeuronNum, activateType):
         # self._input = []
-        self._weight = theano.shared(np.random.randn(oNeuronNum, iNeuronNum).astype(dtype='float32') / (iNeuronNum**0.5) )
-        self._bias = theano.shared(np.random.randn(oNeuronNum).astype(dtype='float32'))
+        self._weight = theano.shared(np.random.randn(oNeuronNum, iNeuronNum) / (iNeuronNum**0.5) )
+        self._bias = theano.shared(np.random.randn(oNeuronNum))
         self._activateType = activateType
         self._output = []
         self._parameter = [self._weight, self._bias]
@@ -29,7 +29,7 @@ class DNN:
         self._intranetNum       = len(layerSizes) - 1
         self._lr                = lr
         print ('lr =', lr)
-        self._output = T.matrix(dtype='float32')
+        self._output = T.matrix()
         self._input = input
         self._mode = mode
 
@@ -52,13 +52,13 @@ class DNN:
                 )
         )
         self._parameter.extend(self._intranets[self._intranetNum-1]._parameter)
-        self._movement = np.ones(len(self._parameter)).astype(dtype='float32') / 1E8
+        self._movement = np.ones(len(self._parameter)) / 1E8
         self._rng = np.random.RandomState(1234)
         
 
     def update(self, gParameter, eta) :
     # update parameter set , movement set
-        self._movement = [(eta * v - self._lr * gp).astype(dtype='float32') for v, gp in zip(self._movement, gParameter)]
+        self._movement = [(eta * v - self._lr * gp) for v, gp in zip(self._movement, gParameter)]
         # print ([v for v in self._movement])
         # print (self._movement[0].type.dtype)
         # print ((eta * v - self._lr * gp).type.dtype for v, gp in zip(self._movement, gParameter))
@@ -87,7 +87,7 @@ class DNN:
         if intranet._activateType == 'ReLU':
             srng = T.shared_randomstreams.RandomStreams(seed = rng.randint(2 ** 30))
             if self._mode == 1:
-                intranet._output = intranet._output * srng.binomial(size = (intranet._oNeuronNum), p = 0.5, dtype='float32')
+                intranet._output = intranet._output * srng.binomial(size = (intranet._oNeuronNum), p = 0.5)
             else:
                 intranet._output = intranet._output * 0.5
 
