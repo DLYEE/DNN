@@ -93,7 +93,7 @@ train = theano.function(
     on_unused_input = 'ignore',
     inputs = [trainingMode, x_seq, y_hat_seq],
     outputs = [cost] + [g.norm(2) for g in grad],
-    updates = neuralNetwork.update(grad)
+    updates = neuralNetwork.update(cost)
 )
 
 test = theano.function(
