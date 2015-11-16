@@ -85,13 +85,13 @@ y_seq,_ = theano.scan(
 # output & cost/grad caculation
 neuralNetwork._output = y_seq
 cost = neuralNetwork.costGenerate(y_hat_seq, batchSize)
-grad = neuralNetwork.calculateGrad(cost)
+grad = neuralNetwork.clipGrad(cost)
 
 train = theano.function(
     on_unused_input = 'ignore',
     inputs = [trainingMode, x_seq, y_hat_seq],
     outputs = [cost] + [g.norm(2) for g in grad],
-    updates = neuralNetwork.update(cost)
+    updates = neuralNetwork.update(grad, 0.9)
 )
 
 test = theano.function(

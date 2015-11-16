@@ -90,14 +90,17 @@ class RNN(dnnClass.DNN):
         return T.stack(self._memoryList)
 
 
-    def update(self, cost) :
+    def update(self, gParameter, eta) :
     # Maintain root mean square of the gradient to update learning rate
     # update parameter set , movement set
-        nextStep = [(p + v) for p, v in zip(self._parameter, self._movement)]
-        gParameter = T.grad(cost, nextStep)
+        # self._parameter = [(p - v) for p, v in zip(self._parameter, self._movement)]
+        lastMovement = self._movement
         self._movement = [(eta * v - self._lr * gp) for v, gp in zip(self._movement, gParameter)]
-        return [(p, p + v) for p, v in zip(self._parameter, self._movement)]
 
-	 def calculateGrad(self, cost) :
+        return [(p, p - lv + 2*v) for p, lv, v in zip(self._parameter, lastMovement, self._movement)]
+
+    def clipGrad(self, cost) :
         grad = T.grad(cost, self._parameter)
-        return T.clip(grad, -10, 10) 
+        clipGrad = [T.clip(g, -10, 10) for g in grad]
+
+        return clipGrad
