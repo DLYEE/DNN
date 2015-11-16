@@ -20,7 +20,7 @@ class InterNetwork:
 
 class DNN:
 
-    def __init__(self, mode, input, layerSizes, lr):
+    def __init__(self, mode, layerSizes, lr):
     # layer_sizes is a np array of integers
     # mode : 1 -> train, 0 -> test
         self._parameter         = []
@@ -30,7 +30,6 @@ class DNN:
         self._lr                = lr
         print ('lr =', lr)
         self._output = T.matrix()
-        self._input = input
         self._mode = mode
 
         # initialize first and hidden intranets
@@ -63,8 +62,7 @@ class DNN:
         # print (self._movement[0].type.dtype)
         # print ((eta * v - self._lr * gp).type.dtype for v, gp in zip(self._movement, gParameter))
 
-        return [ (p,p + v ) # Why / rmgp is wrong ?????
-                for p, v in zip(self._parameter, self._movement) ]
+        return [ (p,p + v ) for p, v in zip(self._parameter, self._movement) ]
 
     def forward(self, input, intranet) :
         intranet._output = T.transpose(T.dot(intranet._weight, T.transpose(input))+ intranet._bias.dimshuffle(0,'x'))
@@ -91,9 +89,9 @@ class DNN:
             else:
                 intranet._output = intranet._output * 0.5
 
-    def feedforward(self) :
+    def feedforward(self, input) :
         #forward first intranet
-        self.forward(self._input,self._intranets[0])
+        self.forward(input,self._intranets[0])
         self.activate(self._intranets[0])
         self.dropout(self._intranets[0], self._rng)
 
