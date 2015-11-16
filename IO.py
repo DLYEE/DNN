@@ -82,9 +82,9 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
 
 def trimOutput(f1, f2):
 
-    my_file = open(f,"r+")
+    my_file = open(f1,"r+")
     frames = []
-    for line in open(f):
+    for line in open(f1):
         line = my_file.readline()
         if line[:2] == 'Id':
             continue
@@ -93,19 +93,124 @@ def trimOutput(f1, f2):
             phone.pop()
             frames.append(phone)
     my_file.close()
-    file = open(f,"w")
+    file = open(f2,"w")
     file.write('id,phone_sequence' + '\n')
     file.write(frames[0][0] + "_" + frames[0][1] + ",")
-    file.write(frames[0][3])
+    file.write(idx2chr(frames[0][3]))
     for index in range(len(frames)):
         if index == 0:
             continue
         if frames[index][:2] == frames[index-1][:2]:
             if frames[index][3] != frames[index-1][3]:
-                file.write(frames[index][3])
+                file.write(idx2chr(frames[index][3]))
         else:
-            file.write("\n")
+            file.write('\n' + frames[index][0] + "_" + frames[index][1] + "," + idx2chr(frames[index][3]))
+            #file.write("\n")
     file.close()
+
+
+def idx2chr(string):
+    value = -1
+    if string == "aa":
+        value = 'a'
+    elif string == "ae":
+        value = 'b'
+    elif string == "ah":
+        value = 'c'
+    elif string == "aw":
+        value = 'e'
+    elif string == "ay":
+        value = 'g'
+    elif string == "b":
+        value = 'h'
+    elif string == "ch":
+        value = 'i'
+    elif string == "sil":
+        value = 'L'
+    elif string == "d":
+        value = 'k'
+    elif string == "dh":
+        value = 'l'
+    elif string == "dx":
+        value = 'm'
+    elif string == "eh":
+        value = 'n'
+    elif string == "l":
+        value = 'B'
+    elif string == "n":
+        value = 'D'
+    elif string == "er":
+        value = 'r'
+    elif string == "ey":
+        value = 's'
+    elif string == "f":
+        value = 't'
+    elif string == "g":
+        value = 'u'
+    elif string == "hh":
+        value = 'v'
+    elif string == "ih":
+        value = 'w'
+    elif string == "iy":
+        value = 'y'
+    elif string == "jh":
+        value = 'z'
+    elif string == "k":
+        value = 'A'
+    elif string == "m":
+        value = 'C'
+    elif string == "ng":
+        value = 'E'
+    elif string == "ow":
+        value = 'F'
+    elif string == "oy":
+        value = 'G'
+    elif string == "p":
+        value = 'H'
+    elif string == "r":
+        value = 'I'
+    elif string == "sh":
+        value = 'K'
+    elif string == "s":
+        value = 'J'
+    elif string == "th":
+        value = 'N'
+    elif string == "t":
+        value = 'M'
+    elif string == "uh":
+        value = 'O'
+    elif string == "uw":
+        value = 'P'
+    elif string == "v":
+        value = 'Q'
+    elif string == "w":
+        value = 'S'
+    elif string == "y":
+        value = 'T'
+    elif string == "z":
+        value = 'U'
+    elif string == "ao":
+        value = 'd'
+    elif string == "ax":
+        value = 'f'
+    elif string == "epi":
+        value = 'q'
+    elif string == "cl":
+        value = 'j'
+    elif string == "vcl":
+        value = 'R'
+    elif string == "el":
+        value = 'o'
+    elif string == "en":
+        value = 'p'
+    elif string == "ix":
+        value = 'x'
+    elif string == "zh":
+        value = 'V'
+    if value != -1:
+        return value
+    else:
+        print ("input string is not fit!\n")
 
 
 def mrg48to39(string):

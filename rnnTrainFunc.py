@@ -6,7 +6,7 @@ import rnnClass
 import dnnClass
 import IO
 
-batchSize = 3
+batchSize = 5
 print ('batchsize =', batchSize)
 
 def makeBatch(inputData, keyOrder, label, mode):
@@ -136,7 +136,7 @@ def testing(inputBatches, keyOrder):
     for index in range(len(keyOrder)):
         s = []
         s.append(keyOrder[index])
-        s += tOs[keyOrder[index]]
+        s[1:] = tOs[keyOrder[index]]
         possibilityVectors.append(s)
 
     return outputData, possibilityVectors
