@@ -84,10 +84,8 @@ y_seq,_ = theano.scan(
 
 # output & cost/grad caculation
 neuralNetwork._output = y_seq
-cost = -T.log( y_seq[0][T.argmax(y_hat_seq[0])] )
-for i in range(batchSize):
-    cost += -T.log( y_seq[i][T.argmax(y_hat_seq[i])] )
-grad = T.grad(cost, neuralNetwork._parameter)
+cost = neuralNetwork.costGenerate(y_hat_seq, batchSize)
+grad = neuralNetwork.calculateGrad(cost)
 
 train = theano.function(
     on_unused_input = 'ignore',
