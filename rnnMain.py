@@ -3,28 +3,30 @@ import rnnTrainFunc
 
 ###
 #set initial train circumstance
-inputBatchesTrain = []
-labelBatchesTrain = []
-keyOrderTrain = []
+inputBatches = []
+labelBatches = []
+keyOrder = []
+
 def readTrain():
-    global inputBatchesTrain, labelBatchesTrain, keyOrderTrain
-    inputDataTrain, keyOrderTrain = IO.readFile('data/posteriorgram/train.post')
+    global inputBatches, labelBatches, keyOrder
+    inputData, keyOrder = IO.readFile('data/posteriorgram/train.post')
     label = IO.readLabel('data/label/train.lab', 48)
-    inputBatchesTrain, labelBatchesTrain = rnnTrainFunc.makeBatch(inputDataTrain, keyOrderTrain, label, 'train')
+    inputBatches, labelBatches = rnnTrainFunc.makeBatch(inputData, keyOrder, label, 'train')
 #
 #set initial test circumstance
-inputBatchesTest = []
-keyOrderTest = []
 def readTest():
-    global inputBatchesTest, keyOrderTest
-    inputDataTest, keyOrderTest = IO.readFile('data/posteriorgram/train.post')
-    inputBatchesTest, nothing= rnnTrainFunc.makeBatch(inputDataTest, keyOrderTest, [], 'test')
+    global inputBatches, labelBatches, keyOrder
+    inputBatches = None
+    labelBatches = None
+    keyOrder = None
+    inputData, keyOrder = IO.readFile('data/posteriorgram/train.post')
+    inputBatches, nothing= rnnTrainFunc.makeBatch(inputData, keyOrder, [], 'test')
 
 ###
 #start training
 def train(epochNum):
-    global inputBatchesTrain, labelBatchesTrain
-    rnnTrainFunc.training(epochNum, inputBatchesTrain, labelBatchesTrain)
+    global inputBatches, labelBatches
+    rnnTrainFunc.training(epochNum, inputBatches, labelBatches)
 
 ###
 #start testing
@@ -35,7 +37,8 @@ def train(epochNum):
     # IO.writeFile('trainSolution.csv', 'useless', [], outputDataTrain, keyOrderTrain, 'rnn')
 
 def test():
-    global inputBatchesTest, keyOrderTest
-    outputDataTest = {}
-    rnnTrainFunc.testing(inputBatchesTest, keyOrderTest, outputDataTest)
-    IO.writeFile('solution.csv', 'useless', [], outputDataTest, keyOrderTest, 'rnn')
+    global inputBatches, keyOrder
+    outputData = {}
+    rnnTrainFunc.testing(inputBatches, keyOrder, outputData)
+    inputBatches = None
+    IO.writeFile('solution.csv', 'useless', [], outputData, keyOrder, 'rnn')

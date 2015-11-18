@@ -63,10 +63,6 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
     file.write('Id,Prediction' + '\n')
     for index in range(len(keyOrder)):
         if index != 0 and index != len(keyOrder) - 1  :
-            print index, keyOrder[index]
-            print outputData[keyOrder[index-1]]
-            print outputData[keyOrder[index]]
-            print outputData[keyOrder[index+1]]
             if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
             elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
