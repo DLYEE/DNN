@@ -43,6 +43,7 @@ class DNN:
                 )
             )
             self._parameter.extend(self._intranets[i]._parameter)
+            # print self._parameter
 
         self._intranets.append(
                 InterNetwork(
@@ -52,7 +53,9 @@ class DNN:
                 )
         )
         self._parameter.extend(self._intranets[self._intranetNum-1]._parameter)
+        # print self._parameter
         self._movement = np.ones(len(self._parameter)) / 1E8
+        # print self._movement
         self._rng = np.random.RandomState(1234)
         
 

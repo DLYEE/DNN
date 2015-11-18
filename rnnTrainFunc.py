@@ -45,11 +45,11 @@ def activate(output, activateType) :
 trainingMode = T.scalar()
 x_seq = T.matrix()
 y_hat_seq = T.matrix()
-layerSizes = [48, 128, 48]
+layerSizes = [48, 256, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
 # layerRange = T.vector()
-neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-3)
+neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-4)
 
 def stepReLU(z_tm1, a_tm1, Wh):
     a_t= activate(z_tm1 + T.dot(Wh, a_tm1), 'ReLU')
@@ -103,19 +103,19 @@ def training(epochNum ,inputBatches, labelBatches):
     global batchSize
     for epoch in range(epochNum):
         tStart = time.time()
-        global neuralNetwork
         print ("Running the", epoch + 1, "th epoch...")
-        print neuralNetwork._memories[0]._weight.get_value()
-        print neuralNetwork._memories[1]._weight.get_value()
-        print neuralNetwork._intranets[0]._weight.get_value()
-        print neuralNetwork._intranets[1]._weight.get_value()
-        print neuralNetwork._movement
+        # print neuralNetwork._movement
         cst = []
         grad = []
         for i in range(len(inputBatches)):
             zz = train(1, inputBatches[i], labelBatches[i])
             cst.append(zz[0])
             grad.append(zz[1:])
+        global neuralNetwork
+        print neuralNetwork._memories[0]._weight.get_value()
+        print neuralNetwork._memories[1]._weight.get_value()
+        print neuralNetwork._intranets[0]._weight.get_value()
+        print neuralNetwork._intranets[1]._weight.get_value()
         print ("Cost = ", (np.mean(cst)/batchSize))
         print ("Gradient = ",(np.mean(grad)/batchSize))
         #print [g.norm(2) for g in grad]
@@ -123,9 +123,8 @@ def training(epochNum ,inputBatches, labelBatches):
         tEnd = time.time()
         print ("It cost %f sec" % (tEnd - tStart))
 
-def testing(inputBatches, keyOrder):
+def testing(inputBatches, keyOrder, outputData):
     global batchSize
-    outputData = {}
     # tOs = {}
     # possibilityVectors= []
 
@@ -141,5 +140,3 @@ def testing(inputBatches, keyOrder):
         # s.append(keyOrder[index])
         # s[1:] = tOs[keyOrder[index]]
         # possibilityVectors.append(s)
-
-    return outputData

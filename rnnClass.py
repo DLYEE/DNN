@@ -33,6 +33,7 @@ class RNN(dnnClass.DNN):
                 )
             )
             self._parameter.extend([self._memories[-1]._weight])
+            # print self._parameter
         self._memories.append(
             MemoryNetwork(
                 iNeuronNum = self._layerSizes[-1],
@@ -41,6 +42,9 @@ class RNN(dnnClass.DNN):
             )
         )
         self._parameter.extend([self._memories[-1]._weight])
+        self._movement = np.ones(len(self._parameter)) / 1E8
+        # print self._movement
+        # print self._parameter
         # No need to memorize y(the output of Rnn)
         # so the size of memories = intranetNum - 1
 
@@ -52,13 +56,13 @@ class RNN(dnnClass.DNN):
         lastMovement = self._movement
         self._movement = [(eta * v - self._lr * gp) for v, gp in zip(self._movement, gParameter)]
 
-        return [(p, p - lv + 2*v) for p, lv, v in zip(self._parameter, lastMovement, self._movement)]
+        return [(p, p - eta * lv + (1 + eta) * v) for p, lv, v in zip(self._parameter, lastMovement, self._movement)]
 
     def clipGrad(self, cost) :
         grad = T.grad(cost, self._parameter)
-        clipGrad = [T.clip(g, -1E1, 1E1) for g in grad]
+        grad = [T.clip(g, -1E1, 1E1) for g in grad]
 
-        return clipGrad
+        return grad
 
 
     # def forward(self, networkInput, memory, intranet, a_tm1) :
