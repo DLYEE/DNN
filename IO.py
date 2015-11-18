@@ -65,6 +65,8 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
             # print index, keyOrder[index]
             if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+            elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
+                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
         outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
         file.write(keyOrder[index] + ',' + outputData[keyOrder[index]] + '\n')
     file.close()

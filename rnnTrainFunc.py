@@ -6,7 +6,7 @@ import rnnClass
 import dnnClass
 import IO
 
-batchSize = 5
+batchSize = 100
 print ('batchsize =', batchSize)
 
 def makeBatch(inputData, keyOrder, label, mode):
@@ -45,14 +45,13 @@ def activate(output, activateType) :
 trainingMode = T.scalar()
 x_seq = T.matrix()
 y_hat_seq = T.matrix()
-layerSizes = [48, 32, 48]
+layerSizes = [48, 128, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
 # layerRange = T.vector()
-neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-4)
+neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-3)
 
 def stepReLU(z_tm1, a_tm1, Wh):
-    global neuralNetwork
     a_t= activate(z_tm1 + T.dot(Wh, a_tm1), 'ReLU')
     return a_t
 
@@ -68,7 +67,6 @@ a_seq,_ = theano.scan(
         )
 
 def stepSoftMax(z_tm1, y_tm1, Wh):
-    global neuralNetwork
     y_t = activate(z_tm1 + T.dot(Wh, y_tm1), 'SoftMax')
     return y_t
 
@@ -105,7 +103,13 @@ def training(epochNum ,inputBatches, labelBatches):
     global batchSize
     for epoch in range(epochNum):
         tStart = time.time()
+        global neuralNetwork
         print ("Running the", epoch + 1, "th epoch...")
+        print neuralNetwork._memories[0]._weight.get_value()
+        print neuralNetwork._memories[1]._weight.get_value()
+        print neuralNetwork._intranets[0]._weight.get_value()
+        print neuralNetwork._intranets[1]._weight.get_value()
+        print neuralNetwork._movement
         cst = []
         grad = []
         for i in range(len(inputBatches)):
@@ -114,6 +118,7 @@ def training(epochNum ,inputBatches, labelBatches):
             grad.append(zz[1:])
         print ("Cost = ", (np.mean(cst)/batchSize))
         print ("Gradient = ",(np.mean(grad)/batchSize))
+        #print [g.norm(2) for g in grad]
         # print grad
         tEnd = time.time()
         print ("It cost %f sec" % (tEnd - tStart))
@@ -121,8 +126,8 @@ def training(epochNum ,inputBatches, labelBatches):
 def testing(inputBatches, keyOrder):
     global batchSize
     outputData = {}
-    tOs = {}
-    possibilityVectors= []
+    # tOs = {}
+    # possibilityVectors= []
 
     for i in range(len(inputBatches)):
         tO = test(0, inputBatches[i])               #testoutput
@@ -130,11 +135,11 @@ def testing(inputBatches, keyOrder):
         for j in range(batchSize):
             if index+j < len(keyOrder):
                 outputData[keyOrder[index+j]] = IO.int2str(np.argmax(tO[j]))
-                tOs[keyOrder[index+j]] = tO[j]
-    for index in range(len(keyOrder)):
-        s = []
-        s.append(keyOrder[index])
-        s[1:] = tOs[keyOrder[index]]
-        possibilityVectors.append(s)
+                # tOs[keyOrder[index+j]] = tO[j]
+    # for index in range(len(keyOrder)):
+        # s = []
+        # s.append(keyOrder[index])
+        # s[1:] = tOs[keyOrder[index]]
+        # possibilityVectors.append(s)
 
-    return outputData, possibilityVectors
+    return outputData
