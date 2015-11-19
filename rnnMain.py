@@ -1,6 +1,6 @@
 import IO
 import rnnTrainFunc
-import cPickl
+import cPickle
 
 ###
 #set initial train circumstance
