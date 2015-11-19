@@ -36,6 +36,36 @@ def readPickle(label, possibility):
         count += 1
     return inputData, keyOrder
 
+def readPickleTest(label, possibility1, possibility2):
+    keyOrder = []
+    inputData = {}
+
+    inputLabel = open(label,'r+')
+    for line in open(label):
+        line = inputLabel.readline()
+        s = re.split(',| |\n',line)
+        keyOrder.append(s[0])
+    inputLabel.close()
+
+    y_prob = []
+
+    with open(possibility1, 'rb') as f:
+        y_prob = pickle.load(f)
+    count = 0
+    for index in range(len(y_prob)):
+        inputData[keyOrder[index]] = np.asarray([float(x) for x in y_prob[index]])
+        count += 1
+    possibility1.close()
+
+    with open(possibility2, 'rb') as f:
+        y_prob= pickle.load(f)
+    for index in range(len(y_prob)):
+        inputData[keyOrder[index + count]] = np.asarray([float(x) for x in y_prob[index]])
+        count += 1
+    possibility2.close()
+
+    return inputData, keyOrder
+
 def dnnReadFile(f1, f2):
     inputData = {}
     keyOrder = []

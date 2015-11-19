@@ -10,17 +10,17 @@ keyOrder = []
 
 def readTrain():
     global inputBatches, labelBatches, keyOrder
-    inputData, keyOrder = IO.readPickle('data/label/train_fixed.lab','possibility.prb.train')
+    inputData, keyOrder = IO.readPickle('data/label/train_fixed.lab','data/possibility.prb.train')
     label = IO.readLabel('data/label/train_fixed.lab', 48)
     inputBatches, labelBatches = rnnTrainFunc.makeBatch(inputData, keyOrder, label, 'train')
 #
 #set initial test circumstance
-def readTest(file):
+def readTest():
     global inputBatches, labelBatches, keyOrder
     inputBatches = None
     labelBatches = None
     keyOrder = None
-    inputData, keyOrder = IO.readFile(file)
+    inputData, keyOrder = IO.readPickleTest('data/mfcc/test.ark', 'data/prob_fixed_1.prb.test', 'data/prob_fixed_2.prb.test')
     inputBatches, nothing= rnnTrainFunc.makeBatch(inputData, keyOrder, [], 'test')
 
 ###
