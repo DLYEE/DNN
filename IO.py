@@ -62,14 +62,14 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
     file = open(f1,"w")
     file.write('Id,Prediction' + '\n')
     for index in range(len(keyOrder)):
-        if index != 0 and index != len(keyOrder) - 1  :
-            if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
-                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-            elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
-                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-            elif index < len(keyOrder) - 2 and outputData[keyOrder[index]] == outputData[keyOrder[index+1]] and outputData[keyOrder[index]] != outputData[keyOrder[index+2]]:
-                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-                outputData[keyOrder[index+1]] = outputData[keyOrder[index-1]]
+        # if index != 0 and index != len(keyOrder) - 1  :
+            # if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
+                # outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+            # elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
+                # outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+            # elif index < len(keyOrder) - 2 and outputData[keyOrder[index]] == outputData[keyOrder[index+1]] and outputData[keyOrder[index]] != outputData[keyOrder[index+2]]:
+                # outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+                # outputData[keyOrder[index+1]] = outputData[keyOrder[index-1]]
         outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
         file.write(keyOrder[index] + ',' + outputData[keyOrder[index]] + '\n')
     file.close()
