@@ -45,14 +45,14 @@ def activate(output, activateType) :
 trainingMode = T.scalar()
 x_seq = T.matrix()
 y_hat_seq = T.matrix()
-layerSizes = [48, 256, 48]
+layerSizes = [48, 128, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
 # layerRange = T.vector()
-neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 1E-4)
+neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 5E-4)
 
-def stepReLU(z_tm1, a_tm1, Wh):
-    a_t= activate(z_tm1 + T.dot(Wh, a_tm1), 'ReLU')
+def stepReLU(z_tm1, a_tm1, Wh, Bh):
+    a_t= activate(z_tm1 + T.dot(Wh, a_tm1) + Bh, 'ReLU')
     return a_t
 
 # feedforward
@@ -62,12 +62,12 @@ a_seq,_ = theano.scan(
         fn = stepReLU,
         sequences = z1_seq,
         outputs_info = a_0,
-        non_sequences = neuralNetwork._memories[0]._weight,
+        non_sequences = [neuralNetwork._memories[0]._weight, neuralNetwork._memories[0]._bias],
         truncate_gradient=-1
         )
 
-def stepSoftMax(z_tm1, y_tm1, Wh):
-    y_t = activate(z_tm1 + T.dot(Wh, y_tm1), 'SoftMax')
+def stepSoftMax(z_tm1, y_tm1, Wh, Bh):
+    y_t = activate(z_tm1 + T.dot(Wh, y_tm1) + Bh, 'SoftMax')
     return y_t
 
 # second layer
@@ -76,7 +76,7 @@ y_seq,_ = theano.scan(
         fn = stepSoftMax,
         sequences = z2_seq,
         outputs_info = y_0,
-        non_sequences = neuralNetwork._memories[1]._weight,
+        non_sequences = [neuralNetwork._memories[1]._weight, neuralNetwork._memories[1]._bias],
         truncate_gradient=-1
         )
 
@@ -112,10 +112,10 @@ def training(epochNum ,inputBatches, labelBatches):
             cst.append(zz[0])
             grad.append(zz[1:])
         global neuralNetwork
-        print neuralNetwork._memories[0]._weight.get_value()
-        print neuralNetwork._memories[1]._weight.get_value()
-        print neuralNetwork._intranets[0]._weight.get_value()
-        print neuralNetwork._intranets[1]._weight.get_value()
+        # print neuralNetwork._memories[0]._weight.get_value()
+        # print neuralNetwork._memories[1]._weight.get_value()
+        # print neuralNetwork._intranets[0]._weight.get_value()
+        # print neuralNetwork._intranets[1]._weight.get_value()
         print ("Cost = ", (np.mean(cst)/batchSize))
         print ("Gradient = ",(np.mean(grad)/batchSize))
         #print [g.norm(2) for g in grad]

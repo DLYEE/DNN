@@ -42,3 +42,9 @@ def test():
     rnnTrainFunc.testing(inputBatches, keyOrder, outputData)
     inputBatches = None
     IO.writeFile('solution.csv', 'useless', [], outputData, keyOrder, 'rnn')
+
+
+readTrain()
+train(2)
+readTest()
+test()
