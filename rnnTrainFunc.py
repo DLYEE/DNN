@@ -104,7 +104,6 @@ def training(epochNum ,inputBatches, labelBatches):
     for epoch in range(epochNum):
         tStart = time.time()
         print ("Running the", epoch + 1, "th epoch...")
-        # print neuralNetwork._movement
         cst = []
         grad = []
         for i in range(len(inputBatches)):
@@ -112,10 +111,6 @@ def training(epochNum ,inputBatches, labelBatches):
             cst.append(zz[0])
             grad.append(zz[1:])
         global neuralNetwork
-        # print neuralNetwork._memories[0]._weight.get_value()
-        # print neuralNetwork._memories[1]._weight.get_value()
-        # print neuralNetwork._intranets[0]._weight.get_value()
-        # print neuralNetwork._intranets[1]._weight.get_value()
         print ("Cost = ", (np.mean(cst)/batchSize))
         print ("Gradient = ",(np.mean(grad)/batchSize))
         #print [g.norm(2) for g in grad]

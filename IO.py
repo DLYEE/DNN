@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import cPickle as pickle
 
 def readFile(f):
     inputData = {}
@@ -13,6 +14,26 @@ def readFile(f):
         inputData[s[0]] = np.asarray(s[1:])
         keyOrder.append(s[0])
     my_file.close()
+    print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
+    return inputData, keyOrder
+
+def readPickle(label, possibility):
+    keyOrder = []
+    inputData = {}
+    with open(possibility, 'rb') as f:
+        y_prob= pickle.load(f)
+        y = pickle.load(f)
+        y_idx = pickle.load(f)
+    inputLabel = open(label,'r+')
+    for line in open(label):
+        line = inputLabel.readline()
+        s = re.split(',| |\n',line)
+        keyOrder.append(s[0])
+    inputLabel.close()
+    count = 0
+    for key in keyOrder:
+        inputData[key] = np.asarray([float(x) for x in y_prob[count]])
+        count += 1
     return inputData, keyOrder
 
 def dnnReadFile(f1, f2):
