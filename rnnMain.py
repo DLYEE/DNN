@@ -1,6 +1,6 @@
 import IO
 import rnnTrainFunc
-import cPickle
+import cPickl
 
 ###
 #set initial train circumstance
@@ -15,12 +15,12 @@ def readTrain():
     inputBatches, labelBatches = rnnTrainFunc.makeBatch(inputData, keyOrder, label, 'train')
 #
 #set initial test circumstance
-def readTest():
+def readTest(file):
     global inputBatches, labelBatches, keyOrder
     inputBatches = None
     labelBatches = None
     keyOrder = None
-    inputData, keyOrder = IO.readFile('data/posteriorgram/train.post')
+    inputData, keyOrder = IO.readFile(file)
     inputBatches, nothing= rnnTrainFunc.makeBatch(inputData, keyOrder, [], 'test')
 
 ###
@@ -45,5 +45,3 @@ def test():
 
 readTrain()
 train(5)
-readTest()
-test()

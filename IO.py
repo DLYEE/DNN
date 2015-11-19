@@ -263,95 +263,95 @@ def str2int(string):
         value = 1
     elif string == "ah":
         value = 2
-    elif string == "aw":
-        value = 3
-    elif string == "ay":
-        value = 4
-    elif string == "b":
-        value = 5
-    elif string == "ch":
-        value = 6
-    elif string == "sil":
-        value = 7
-    elif string == "d":
-        value = 8
-    elif string == "dh":
-        value = 9
-    elif string == "dx":
-        value = 10
-    elif string == "eh":
-        value = 11
-    elif string == "l":
-        value = 12
-    elif string == "n":
-        value = 13
-    elif string == "er":
-        value = 14
-    elif string == "ey":
-        value = 15
-    elif string == "f":
-        value = 16
-    elif string == "g":
-        value = 17
-    elif string == "hh":
-        value = 18
-    elif string == "ih":
-        value = 19
-    elif string == "iy":
-        value = 20
-    elif string == "jh":
-        value = 21
-    elif string == "k":
-        value = 22
-    elif string == "m":
-        value = 23
-    elif string == "ng":
-        value = 24
-    elif string == "ow":
-        value = 25
-    elif string == "oy":
-        value = 26
-    elif string == "p":
-        value = 27
-    elif string == "r":
-        value = 28
-    elif string == "sh":
-        value = 29
-    elif string == "s":
-        value = 30
-    elif string == "th":
-        value = 31
-    elif string == "t":
-        value = 32
-    elif string == "uh":
-        value = 33
-    elif string == "uw":
-        value = 34
-    elif string == "v":
-        value = 35
-    elif string == "w":
-        value = 36
-    elif string == "y":
-        value = 37
-    elif string == "z":
-        value = 38
     elif string == "ao":
-        value = 39
+        value = 3
+    elif string == "aw":
+        value = 4
     elif string == "ax":
-        value = 40
-    elif string == "epi":
-        value = 41
+        value = 5
+    elif string == "ay":
+        value = 6
+    elif string == "b":
+        value = 7
+    elif string == "ch":
+        value = 8
     elif string == "cl":
-        value = 42
-    elif string == "vcl":
-        value = 43
+        value = 9
+    elif string == "d":
+        value = 10
+    elif string == "dh":
+        value = 11
+    elif string == "dx":
+        value = 12
+    elif string == "eh":
+        value = 13
     elif string == "el":
-        value = 44
+        value = 14
     elif string == "en":
-        value = 45
+        value = 15
+    elif string == "epi":
+        value = 16
+    elif string == "er":
+        value = 17
+    elif string == "ey":
+        value = 18
+    elif string == "f":
+        value = 19
+    elif string == "g":
+        value = 20
+    elif string == "hh":
+        value = 21
+    elif string == "ih":
+        value = 22
     elif string == "ix":
-        value = 46
+        value = 23
+    elif string == "iy":
+        value = 24
+    elif string == "jh":
+        value = 25
+    elif string == "k":
+        value = 26
+    elif string == "l":
+        value = 27
+    elif string == "m":
+        value = 28
+    elif string == "ng":
+        value = 29
+    elif string == "n":
+        value = 30
+    elif string == "ow":
+        value = 31
+    elif string == "oy":
+        value = 32
+    elif string == "p":
+        value = 33
+    elif string == "r":
+        value = 34
+    elif string == "sh":
+        value = 35
+    elif string == "sil":
+        value = 36
+    elif string == "s":
+        value = 37
+    elif string == "th":
+        value = 38
+    elif string == "t":
+        value = 39
+    elif string == "uh":
+        value = 40
+    elif string == "uw":
+        value = 41
+    elif string == "vcl":
+        value = 42
+    elif string == "v":
+        value = 43
+    elif string == "w":
+        value = 44
+    elif string == "y":
+        value = 45
     elif string == "zh":
+        value = 46
+    elif string == "z":
         value = 47
     if value != -1:
         return value
@@ -368,95 +368,95 @@ def int2str(num):
     elif num == 2:
         string = "ah"
     elif num == 3:
-        string = "aw"
-    elif num == 4:
-        string = "ay"
-    elif num == 5:
-        string = "b"
-    elif num == 6:
-        string = "ch"
-    elif num == 7:
-        string = "sil"
-    elif num == 8:
-        string = "d"
-    elif num == 9:
-        string = "dh"
-    elif num == 10:
-        string = "dx"
-    elif num == 11:
-        string = "eh"
-    elif num == 12:
-        string = "l"
-    elif num == 13:
-        string = "n"
-    elif num == 14:
-        string = "er"
-    elif num == 15:
-        string = "ey"
-    elif num == 16:
-        string = "f"
-    elif num == 17:
-        string = "g"
-    elif num == 18:
-        string = "hh"
-    elif num == 19:
-        string = "ih"
-    elif num == 20:
-        string = "iy"
-    elif num == 21:
-        string = "jh"
-    elif num == 22:
-        string = "k"
-    elif num == 23:
-        string = "m"
-    elif num == 24:
-        string = "ng"
-    elif num == 25:
-        string = "ow"
-    elif num == 26:
-        string = "oy"
-    elif num == 27:
-        string = "p"
-    elif num == 28:
-        string = "r"
-    elif num == 29:
-        string = "sh"
-    elif num == 30:
-        string = "s"
-    elif num == 31:
-        string = "th"
-    elif num == 32:
-        string = "t"
-    elif num == 33:
-        string = "uh"
-    elif num == 34:
-        string = "uw"
-    elif num == 35:
-        string = "v"
-    elif num == 36:
-        string = "w"
-    elif num == 37:
-        string = "y"
-    elif num == 38:
-        string = "z"
-    elif num == 39:
         string = "ao"
-    elif num == 40:
+    elif num == 4:
+        string = "aw"
+    elif num == 5:
         string = "ax"
-    elif num == 41:
-        string = "epi"
-    elif num == 42:
+    elif num == 6:
+        string = "ay"
+    elif num == 7:
+        string = "b"
+    elif num == 8:
+        string = "ch"
+    elif num == 9:
         string = "cl"
-    elif num == 43:
-        string = "vcl"
-    elif num == 44:
+    elif num == 10:
+        string = "d"
+    elif num == 11:
+        string = "dh"
+    elif num == 12:
+        string = "dx"
+    elif num == 13:
+        string = "eh"
+    elif num == 14:
         string = "el"
-    elif num == 45:
+    elif num == 15:
         string = "en"
-    elif num == 46:
+    elif num == 16:
+        string = "epi"
+    elif num == 17:
+        string = "er"
+    elif num == 18:
+        string = "ey"
+    elif num == 19:
+        string = "f"
+    elif num == 20:
+        string = "g"
+    elif num == 21:
+        string = "hh"
+    elif num == 22:
+        string = "ih"
+    elif num == 23:
         string = "ix"
-    elif num == 47:
+    elif num == 24:
+        string = "iy"
+    elif num == 25:
+        string = "jh"
+    elif num == 26:
+        string = "k"
+    elif num == 27:
+        string = "l"
+    elif num == 28:
+        string = "m"
+    elif num == 29:
+        string = "ng"
+    elif num == 30:
+        string = "n"
+    elif num == 31:
+        string = "ow"
+    elif num == 32:
+        string = "oy"
+    elif num == 33:
+        string = "p"
+    elif num == 34:
+        string = "r"
+    elif num == 35:
+        string = "sh"
+    elif num == 36:
+        string = "sil"
+    elif num == 37:
+        string = "s"
+    elif num == 38:
+        string = "th"
+    elif num == 39:
+        string = "t"
+    elif num == 40:
+        string = "uh"
+    elif num == 41:
+        string = "uw"
+    elif num == 42:
+        string = "vcl"
+    elif num == 43:
+        string = "v"
+    elif num == 44:
+        string = "w"
+    elif num == 45:
+        string = "y"
+    elif num == 46:
         string = "zh"
+    elif num == 47:
+        string = "z"
     if string != "":
         return string
     else:
