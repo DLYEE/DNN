@@ -10,6 +10,9 @@ keyOrder = []
 
 def readTrain():
     global inputBatches, labelBatches, keyOrder
+    inputBatches = None
+    labelBatches = None
+    keyOrder = None
     inputData, keyOrder = IO.readPickle('data/label/train_fixed.lab','data/possibility.prb.train')
     label = IO.readLabel('data/label/train_fixed.lab', 48)
     inputBatches, labelBatches = rnnTrainFunc.makeBatch(inputData, keyOrder, label, 'train')
@@ -42,6 +45,4 @@ def test():
     rnnTrainFunc.testing(inputBatches, keyOrder, outputData)
     inputBatches = None
     IO.writeFile('solution.csv', 'useless', [], outputData, keyOrder, 'rnn')
-
-readTrain()
-train(5)
+    IO.trimOutput('solution.csv', 'trimSolution.csv')

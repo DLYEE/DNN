@@ -61,7 +61,7 @@ class RNN(dnnClass.DNN):
 
     def clipGrad(self, cost) :
         grad = T.grad(cost, self._parameter)
-        grad = [T.clip(g, -1E1, 1E1) for g in grad]
+        grad = [T.clip(g, -1E0, 1E0) for g in grad]
 
         return grad
 
