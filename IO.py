@@ -17,51 +17,9 @@ def readFile(f):
         inputData[s[0]] = np.asarray(s[1:])
         keyOrder.append(s[0])
     my_file.close()
-    print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
+    # print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
     return inputData, keyOrder
 
-def transProb(label):
-    startProb = []
-    endProb = []
-    succesiveProb = []
-    #y0 = aa, y1 = aa...followed the order in str2int
-    #startProb = [P(y0|start), P(y1|start)...]
-    #endProb = [P(y0|end), P(y1|end)...]
-    #succesiveProb = [[P(y0|y0), P(y1|y0)...],[P(y0|y1),P(y1,y1)...]...]
-    sequenceName = ''
-    currentLabel = ''
-    lastLabel = ''
-    startCount = np.zeros(49) #startCount[48] is for total number
-    endCount = np.zeros(49)
-    succesiveCount = np.zeros((48,49))
-    labelFile = open(label, 'r+')
-    while True:
-        line = labelFile.readline()
-        if not line:
-            endCount[48] += 1
-            endCount[str2int(lastLabel)] += 1
-            break        
-        s = re.split(',|_|\n',line)  
-        #s[0] = maeb0, s[1] = sil411, s[2] = 1, s[3] = sil
-        currentLabel = s[3]
-        if sequenceName != (s[0] + s[1]):
-            if sequenceName != '':
-                endCount[48] += 1
-                endCount[str2int(lastLabel)] += 1
-            sequenceName = s[0] + s[1]
-            startCount[48] += 1
-            startCount[str2int(currentLabel)] += 1
-        else:
-            succesiveCount[str2int(lastLabel)][str2int(currentLabel)] += 1
-            succesiveCount[str2int(lastLabel)][48] += 1
-        lastLabel = s[3]
-    for i in range(0,48):
-        subProb = []
-        startProb.append(float(startCount[i]/max(startCount[48],1)))
-        endProb.append(float(endCount[i]/max(endCount[48],1)))
-        for j in range(0,48):
-            subProb.append(float(succesiveCount[i][j]/max(succesiveCount[i][48],1)))
-        succesiveProb.append(subProb)
 
 def readPickle(label, possibility):
     keyOrder = []
@@ -104,28 +62,31 @@ def dnnReadFile(f1, f2):
     return inputData, keyOrder
 
 
-def readLabel(f, featureSize):
-    label = {}
+def readLabel(f):
+    print 'enter readLabel'
+    label = []
     my_file = open(f,'r+')
     for line in open(f):
         line = my_file.readline()
         s = re.split(',|\n',line)
         s.pop()
         number = str2int(s[1])
-        labelElement = []
-        for i in range(featureSize):
-            if i == number:
-                labelElement.append(1)
-            else:
-                labelElement.append(0)
-        label[s[0]] = np.asarray(labelElement)
+        label.append(number)
+        # labelElement = []
+        # for i in range(featureSize):
+            # if i == number:
+                # labelElement.append(1)
+            # else:
+                # labelElement.append(0)
+        # label[s[0]] = np.asarray(labelElement)
+    print 'before file close'
     my_file.close()
     return label
 
 
 def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
 
-    print "Writing file..."
+    # print "Writing file..."
     file = open(f1,"w")
     file.write('Id,Prediction' + '\n')
     for index in range(len(keyOrder)):
