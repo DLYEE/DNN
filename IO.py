@@ -1,6 +1,9 @@
 import numpy as np
 import re
 import cPickle as pickle
+import theano
+
+theano.config.floatX = 'float64'
 
 def readFile(f):
     inputData = {}
@@ -17,6 +20,49 @@ def readFile(f):
     print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
     return inputData, keyOrder
 
+def transProb(label):
+    startProb = []
+    endProb = []
+    succesiveProb = []
+    #y0 = aa, y1 = aa...followed the order in str2int
+    #startProb = [P(y0|start), P(y1|start)...]
+    #endProb = [P(y0|end), P(y1|end)...]
+    #succesiveProb = [[P(y0|y0), P(y1|y0)...],[P(y0|y1),P(y1,y1)...]...]
+    sequenceName = ''
+    currentLabel = ''
+    lastLabel = ''
+    startCount = np.zeros(49) #startCount[48] is for total number
+    endCount = np.zeros(49)
+    succesiveCount = np.zeros((48,49))
+    labelFile = open(label, 'r+')
+    while True:
+        line = labelFile.readline()
+        if not line:
+            endCount[48] += 1
+            endCount[str2int(lastLabel)] += 1
+            break        
+        s = re.split(',|_|\n',line)  
+        #s[0] = maeb0, s[1] = sil411, s[2] = 1, s[3] = sil
+        currentLabel = s[3]
+        if sequenceName != (s[0] + s[1]):
+            if sequenceName != '':
+                endCount[48] += 1
+                endCount[str2int(lastLabel)] += 1
+            sequenceName = s[0] + s[1]
+            startCount[48] += 1
+            startCount[str2int(currentLabel)] += 1
+        else:
+            succesiveCount[str2int(lastLabel)][str2int(currentLabel)] += 1
+            succesiveCount[str2int(lastLabel)][48] += 1
+        lastLabel = s[3]
+    for i in range(0,48):
+        subProb = []
+        startProb.append(float(startCount[i]/max(startCount[48],1)))
+        endProb.append(float(endCount[i]/max(endCount[48],1)))
+        for j in range(0,48):
+            subProb.append(float(succesiveCount[i][j]/max(succesiveCount[i][48],1)))
+        succesiveProb.append(subProb)
+
 def readPickle(label, possibility):
     keyOrder = []
     inputData = {}
@@ -24,48 +70,16 @@ def readPickle(label, possibility):
         y_prob= pickle.load(f)
         y = pickle.load(f)
         y_idx = pickle.load(f)
-    inputLabel = open(label,'r+')
+    labelFile = open(label,'r+')
     for line in open(label):
-        line = inputLabel.readline()
+        line = labelFile.readline()
         s = re.split(',| |\n',line)
         keyOrder.append(s[0])
-    inputLabel.close()
+    labelFile.close()
     count = 0
     for key in keyOrder:
         inputData[key] = np.asarray([float(x) for x in y_prob[count]])
         count += 1
-    return inputData, keyOrder
-
-def readPickleTest(label, possibility1, possibility2):
-    keyOrder = []
-    inputData = {}
-
-    inputLabel = open(label,'r+')
-    for line in open(label):
-        line = inputLabel.readline()
-        s = re.split(',| |\n',line)
-        keyOrder.append(s[0])
-    inputLabel.close()
-    # print len(keyOrder)
-
-    y_prob = []
-
-    with open(possibility1, 'rb') as f:
-        y_prob = pickle.load(f)
-    # print len(y_prob)
-    count = 0
-    for index in range(len(y_prob)):
-        inputData[keyOrder[index]] = np.asarray([float(x) for x in y_prob[index]])
-        count += 1
-    # print count
-
-    with open(possibility2, 'rb') as f:
-        y_prob= pickle.load(f)
-    # print len(y_prob)
-    for index in range(len(y_prob)):
-        # print index + count
-        inputData[keyOrder[index + count]] = np.asarray([float(x) for x in y_prob[index]])
-
     return inputData, keyOrder
 
 def dnnReadFile(f1, f2):
@@ -120,7 +134,7 @@ def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
             elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-            elif index < len(keyOrder) - 2 and outputData[keyOrder[index]] == outputData[keyOrder[index+1]] and outputData[keyOrder[index]] != outputData[keyOrder[index+2]]:
+            elif outputData[keyOrder[index]] == outputData[keyOrder[index+1]] and outputData[keyOrder[index]] != outputData[keyOrder[index+2]]:
                 outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
                 outputData[keyOrder[index+1]] = outputData[keyOrder[index-1]]
         outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
@@ -295,95 +309,95 @@ def str2int(string):
         value = 1
     elif string == "ah":
         value = 2
-    elif string == "ao":
-        value = 3
     elif string == "aw":
-        value = 4
-    elif string == "ax":
-        value = 5
+        value = 3
     elif string == "ay":
-        value = 6
+        value = 4
     elif string == "b":
-        value = 7
+        value = 5
     elif string == "ch":
-        value = 8
-    elif string == "cl":
-        value = 9
-    elif string == "d":
-        value = 10
-    elif string == "dh":
-        value = 11
-    elif string == "dx":
-        value = 12
-    elif string == "eh":
-        value = 13
-    elif string == "el":
-        value = 14
-    elif string == "en":
-        value = 15
-    elif string == "epi":
-        value = 16
-    elif string == "er":
-        value = 17
-    elif string == "ey":
-        value = 18
-    elif string == "f":
-        value = 19
-    elif string == "g":
-        value = 20
-    elif string == "hh":
-        value = 21
-    elif string == "ih":
-        value = 22
-    elif string == "ix":
-        value = 23
-    elif string == "iy":
-        value = 24
-    elif string == "jh":
-        value = 25
-    elif string == "k":
-        value = 26
-    elif string == "l":
-        value = 27
-    elif string == "m":
-        value = 28
-    elif string == "ng":
-        value = 29
-    elif string == "n":
-        value = 30
-    elif string == "ow":
-        value = 31
-    elif string == "oy":
-        value = 32
-    elif string == "p":
-        value = 33
-    elif string == "r":
-        value = 34
-    elif string == "sh":
-        value = 35
+        value = 6
     elif string == "sil":
-        value = 36
+        value = 7
+    elif string == "d":
+        value = 8
+    elif string == "dh":
+        value = 9
+    elif string == "dx":
+        value = 10
+    elif string == "eh":
+        value = 11
+    elif string == "l":
+        value = 12
+    elif string == "n":
+        value = 13
+    elif string == "er":
+        value = 14
+    elif string == "ey":
+        value = 15
+    elif string == "f":
+        value = 16
+    elif string == "g":
+        value = 17
+    elif string == "hh":
+        value = 18
+    elif string == "ih":
+        value = 19
+    elif string == "iy":
+        value = 20
+    elif string == "jh":
+        value = 21
+    elif string == "k":
+        value = 22
+    elif string == "m":
+        value = 23
+    elif string == "ng":
+        value = 24
+    elif string == "ow":
+        value = 25
+    elif string == "oy":
+        value = 26
+    elif string == "p":
+        value = 27
+    elif string == "r":
+        value = 28
+    elif string == "sh":
+        value = 29
     elif string == "s":
-        value = 37
+        value = 30
     elif string == "th":
-        value = 38
+        value = 31
     elif string == "t":
-        value = 39
+        value = 32
     elif string == "uh":
-        value = 40
+        value = 33
     elif string == "uw":
-        value = 41
-    elif string == "vcl":
-        value = 42
+        value = 34
     elif string == "v":
-        value = 43
+        value = 35
     elif string == "w":
-        value = 44
+        value = 36
     elif string == "y":
-        value = 45
-    elif string == "zh":
-        value = 46
+        value = 37
     elif string == "z":
+        value = 38
+    elif string == "ao":
+        value = 39
+    elif string == "ax":
+        value = 40
+    elif string == "epi":
+        value = 41
+    elif string == "cl":
+        value = 42
+    elif string == "vcl":
+        value = 43
+    elif string == "el":
+        value = 44
+    elif string == "en":
+        value = 45
+    elif string == "ix":
+        value = 46
+    elif string == "zh":
         value = 47
     if value != -1:
         return value
@@ -400,95 +414,95 @@ def int2str(num):
     elif num == 2:
         string = "ah"
     elif num == 3:
-        string = "ao"
-    elif num == 4:
         string = "aw"
-    elif num == 5:
-        string = "ax"
-    elif num == 6:
+    elif num == 4:
         string = "ay"
-    elif num == 7:
+    elif num == 5:
         string = "b"
-    elif num == 8:
+    elif num == 6:
         string = "ch"
-    elif num == 9:
-        string = "cl"
-    elif num == 10:
-        string = "d"
-    elif num == 11:
-        string = "dh"
-    elif num == 12:
-        string = "dx"
-    elif num == 13:
-        string = "eh"
-    elif num == 14:
-        string = "el"
-    elif num == 15:
-        string = "en"
-    elif num == 16:
-        string = "epi"
-    elif num == 17:
-        string = "er"
-    elif num == 18:
-        string = "ey"
-    elif num == 19:
-        string = "f"
-    elif num == 20:
-        string = "g"
-    elif num == 21:
-        string = "hh"
-    elif num == 22:
-        string = "ih"
-    elif num == 23:
-        string = "ix"
-    elif num == 24:
-        string = "iy"
-    elif num == 25:
-        string = "jh"
-    elif num == 26:
-        string = "k"
-    elif num == 27:
-        string = "l"
-    elif num == 28:
-        string = "m"
-    elif num == 29:
-        string = "ng"
-    elif num == 30:
-        string = "n"
-    elif num == 31:
-        string = "ow"
-    elif num == 32:
-        string = "oy"
-    elif num == 33:
-        string = "p"
-    elif num == 34:
-        string = "r"
-    elif num == 35:
-        string = "sh"
-    elif num == 36:
+    elif num == 7:
         string = "sil"
-    elif num == 37:
+    elif num == 8:
+        string = "d"
+    elif num == 9:
+        string = "dh"
+    elif num == 10:
+        string = "dx"
+    elif num == 11:
+        string = "eh"
+    elif num == 12:
+        string = "l"
+    elif num == 13:
+        string = "n"
+    elif num == 14:
+        string = "er"
+    elif num == 15:
+        string = "ey"
+    elif num == 16:
+        string = "f"
+    elif num == 17:
+        string = "g"
+    elif num == 18:
+        string = "hh"
+    elif num == 19:
+        string = "ih"
+    elif num == 20:
+        string = "iy"
+    elif num == 21:
+        string = "jh"
+    elif num == 22:
+        string = "k"
+    elif num == 23:
+        string = "m"
+    elif num == 24:
+        string = "ng"
+    elif num == 25:
+        string = "ow"
+    elif num == 26:
+        string = "oy"
+    elif num == 27:
+        string = "p"
+    elif num == 28:
+        string = "r"
+    elif num == 29:
+        string = "sh"
+    elif num == 30:
         string = "s"
-    elif num == 38:
+    elif num == 31:
         string = "th"
-    elif num == 39:
+    elif num == 32:
         string = "t"
-    elif num == 40:
+    elif num == 33:
         string = "uh"
-    elif num == 41:
+    elif num == 34:
         string = "uw"
-    elif num == 42:
-        string = "vcl"
-    elif num == 43:
+    elif num == 35:
         string = "v"
-    elif num == 44:
+    elif num == 36:
         string = "w"
-    elif num == 45:
+    elif num == 37:
         string = "y"
-    elif num == 46:
-        string = "zh"
-    elif num == 47:
+    elif num == 38:
         string = "z"
+    elif num == 39:
+        string = "ao"
+    elif num == 40:
+        string = "ax"
+    elif num == 41:
+        string = "epi"
+    elif num == 42:
+        string = "cl"
+    elif num == 43:
+        string = "vcl"
+    elif num == 44:
+        string = "el"
+    elif num == 45:
+        string = "en"
+    elif num == 46:
+        string = "ix"
+    elif num == 47:
+        string = "zh"
     if string != "":
         return string
     else:
