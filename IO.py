@@ -65,13 +65,20 @@ def dnnReadFile(f1, f2):
 def readLabel(f):
     print 'enter readLabel'
     label = []
+    labelElement = []
+    name = ["", ""]
     my_file = open(f,'r+')
     for line in open(f):
         line = my_file.readline()
-        s = re.split(',|\n',line)
+        s = re.split('_|,|\n',line)
         s.pop()
-        number = str2int(s[1])
-        label.append(number)
+        number = str2int(s[3])
+        if s[0:2] != name[:]:
+            if name != ["", ""]:
+                label.append(labelElement)
+            name = s[0:2]
+            labelElement = []
+        labelElement.append(number)
         # labelElement = []
         # for i in range(featureSize):
             # if i == number:
