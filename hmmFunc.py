@@ -68,9 +68,10 @@ def viterbi():
 def transProb(label):
     transProbMatrix = np.zeros((48,48))
     totalCount = np.zeros(48)
-    for i in range(0, len(label)-1):
-        transProbMatrix[label[i], label[i+1]] += 1
-        totalCount[label[i]] += 1
+    for i in range(0, len(label)):
+        for j in range(0, len(label[i])-1):
+            transProbMatrix[label[i][j], label[i][j+1]] += 1
+            totalCount[label[i][j]] += 1
     for i in range(0, 48):
         transProbMatrix[i] = transProbMatrix[i] / totalCount[i]
         for j in range(0,48):
