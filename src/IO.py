@@ -91,17 +91,46 @@ def trimOutput(f1, f2):
     my_file.close()
     file = open(f2,"w")
     file.write('id,phone_sequence' + '\n')
-    file.write(frames[0][0] + "_" + frames[0][1] + ",")
-    file.write(idx2chr(frames[0][3]))
-    for index in range(len(frames)):
-        if index == 0:
-            continue
+    file.write(frames[0][0] + "_" + frames[0][1] + "," + idx2chr(frames[0][3]))
+    for index in range(1, len(frames)):
         if frames[index][:2] == frames[index-1][:2]:
             if frames[index][3] != frames[index-1][3]:
                 file.write(idx2chr(frames[index][3]))
         else:
             file.write('\n' + frames[index][0] + "_" + frames[index][1] + "," + idx2chr(frames[index][3]))
-            #file.write("\n")
+    file.close()
+
+def deleteSil(f):
+    file = open(f, "r+")
+    seqs = []
+    for line in open(f):
+        line = file.readline()
+        if line[:2] == 'id':
+            continue
+        else:
+            seq = re.split(",|\n", line)
+            # print seq
+            if seq[-1] == '':
+                seq.pop()
+            # print seq
+            if seq[1][0] == 'L':
+                seqTemp = seq[1][1]
+                for i in range(2, len(seq[1])):
+                    seqTemp += seq[1][i]
+            seq[1] = seqTemp
+            if seq[1][-1] == 'L':
+                seqTemp = seq[1][0]
+                for i in range(1, len(seq[1]) - 1):
+                    seqTemp += seq[1][i]
+            seq[1] = seqTemp
+            # print seq
+            seqs.append(seq)
+    file.close()
+
+    file = open(f, "w")
+    file.write('id,phone_sequence' + '\n')
+    for seq in seqs:
+        file.write(seq[0] + ',' + seq[1] + '\n')
     file.close()
 
 

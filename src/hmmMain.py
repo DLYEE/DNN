@@ -6,9 +6,9 @@ import numpy as np
 import time
 
 def viterbi():
-    observationProb, keyOrder, length = IO.readFile('data/test.prb')
+    observationProb, keyOrder, length = IO.readFile('../data/test.prb')
     outputData = {}
-    trainLabel = IO.readTrainLabel('data/label/train.lab')
+    trainLabel = IO.readTrainLabel('../data/label/train.lab')
     transMatrix = hmmFunc.transProb(trainLabel)
 
     def forward(key, preValue, preTrace):
@@ -29,26 +29,28 @@ def viterbi():
     sentences = []
     count = -1
     # for sentence in range(1, 4):
-    for sentence in range(1, len(length)):
+    timeBegin = time.time()
+    for i in range(1, len(length)):
         print "This sentence starts at ", keyOrder[count+1]
-        print "Sentence Length = ", length[sentence] - length[sentence - 1]
-        print "Toatal Length = ", length[sentence]
+        print "Sentence Length = ", length[i] - length[i - 1]
+        print "Toatal Length = ", length[i]
         timeStart = time.time()
         trace = []
         value = []
-        for index in range(length[sentence] - length[sentence - 1]):
+        for index in range(length[i] - length[i - 1]):
             count += 1
             if index == 0:
-                for i in range(0,48):
-                    value.append(math.log(observationProb[keyOrder[count]][i]))
-                    trace.append([IO.int2str(i)])
+                for j in range(0,48):
+                    value.append(math.log(observationProb[keyOrder[count]][j]))
+                    trace.append([IO.int2str(j)])
             else:
                 value, trace = forward(keyOrder[count], value, trace)
         timeEnd = time.time()
         print "Time Cost = ", timeEnd - timeStart
+        print "Total Time = ", timeEnd - timeBegin
         maxIndex = np.argmax(value)
         print "max trace: ", trace[maxIndex]
-        print 'max value = ', value[maxIndex]
+        print 'max value = ', value[maxIndex], '\n', '\n'
         s = re.split('_', keyOrder[count])[:2]
         names.append(s[0] + '_' + s[1])
         sentences.append(trace[maxIndex])
@@ -57,11 +59,8 @@ def viterbi():
     return names, sentences
 
 names, sentences = viterbi()
-IO.writeFile('123.csv', names, sentences)
-IO.trimOutput('123.csv', 'hmm.csv')
-
-
-
-
+IO.writeFile('frames.csv', names, sentences)
+IO.trimOutput('frames.csv', 'hmm.csv')
+IO.deleteSil('hmm.csv')
 
 
