@@ -1,3 +1,6 @@
 data
-*.txt
 *.pyc
+*.csv
+*.txt
+*.prb
+*.csv
