@@ -6,7 +6,7 @@ import rnnClass
 import dnnClass
 import IO
 
-batchSize = 100
+batchSize = 20
 print ('batchsize =', batchSize)
 
 def makeBatch(inputData, keyOrder, label, mode):
@@ -49,7 +49,7 @@ layerSizes = [48, 128, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
 # layerRange = T.vector()
-neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 5E-4)
+neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 4E-5)
 
 def stepReLU(z_tm1, a_tm1, Wh, Bh):
     a_t= activate(z_tm1 + T.dot(Wh, a_tm1) + Bh, 'ReLU')
@@ -89,7 +89,7 @@ train = theano.function(
     on_unused_input = 'ignore',
     inputs = [trainingMode, x_seq, y_hat_seq],
     outputs = [cost] + [g.norm(2) for g in grad],
-    updates = neuralNetwork.update(grad, 3)
+    updates = neuralNetwork.update(grad, 0.9)
 )
 
 test = theano.function(
@@ -118,20 +118,19 @@ def training(epochNum ,inputBatches, labelBatches):
         tEnd = time.time()
         print ("It cost %f sec" % (tEnd - tStart))
 
-def testing(inputBatches, keyOrder, outputData):
+def testing(inputBatches, keyOrder, outputData, possibilityVectors):
     global batchSize
-    # tOs = {}
-    # possibilityVectors= []
+    tOs = {}
 
     for i in range(len(inputBatches)):
-        tO = test(0, inputBatches[i])               #testoutput
-        index = batchSize * i                       #'i' is the number of keyBatches & 'index' is the number of keyOrder
+        tO = test(0, inputBatches[i])               
+        index = batchSize * i                      
         for j in range(batchSize):
             if index+j < len(keyOrder):
                 outputData[keyOrder[index+j]] = IO.int2str(np.argmax(tO[j]))
-                # tOs[keyOrder[index+j]] = tO[j]
-    # for index in range(len(keyOrder)):
-        # s = []
-        # s.append(keyOrder[index])
-        # s[1:] = tOs[keyOrder[index]]
-        # possibilityVectors.append(s)
+                tOs[keyOrder[index+j]] = tO[j]
+    for index in range(len(keyOrder)):
+        s = []
+        s.append(keyOrder[index])
+        s[1:] = tOs[keyOrder[index]]
+        possibilityVectors.append(s)

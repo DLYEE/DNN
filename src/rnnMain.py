@@ -1,6 +1,7 @@
 import IO
 import rnnTrainFunc
 import cPickle
+import hmmMain
 
 ###
 #set initial train circumstance
@@ -13,8 +14,8 @@ def readTrain():
     inputBatches = None
     labelBatches = None
     keyOrder = None
-    inputData, keyOrder = IO.readPickle('data/label/train_fixed.lab','data/possibility.prb.train')
-    label = IO.readLabel('data/label/train_fixed.lab', 48)
+    inputData, keyOrder, length = IO.readFile('../data/train.prb')
+    label = IO.readLabel('../data/label/train_fixed.lab', 48)
     inputBatches, labelBatches = rnnTrainFunc.makeBatch(inputData, keyOrder, label, 'train')
 #
 #set initial test circumstance
@@ -23,7 +24,7 @@ def readTest():
     inputBatches = None
     labelBatches = None
     keyOrder = None
-    inputData, keyOrder = IO.readPickleTest('data/mfcc/test.ark', 'data/prob_fixed_1.prb.test', 'data/prob_fixed_2.prb.test')
+    inputData, keyOrder, length = IO.readFile('../data/test.prb')
     inputBatches, nothing= rnnTrainFunc.makeBatch(inputData, keyOrder, [], 'test')
 
 ###
@@ -42,7 +43,14 @@ def train(epochNum):
 def test():
     global inputBatches, keyOrder
     outputData = {}
-    rnnTrainFunc.testing(inputBatches, keyOrder, outputData)
+    possibilityVectors = []
+    rnnTrainFunc.testing(inputBatches, keyOrder, outputData, possibilityVectors)
     inputBatches = None
-    IO.writeFile('solution.csv', 'useless', [], outputData, keyOrder, 'rnn')
-    IO.trimOutput('solution.csv', 'trimSolution.csv')
+    IO.writeFile('../rnnFrame.csv', '../data/rnnTest.prb', possibilityVectors, outputData, keyOrder)
+    IO.trimOutput('../rnnFrame.csv', '../rnn.csv')
+
+readTrain()
+train(5)
+readTest()
+test()
+hmmMain.hmm()

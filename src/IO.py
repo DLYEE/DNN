@@ -3,9 +3,13 @@ import re
 import cPickle as pickle
 
 def readFile(f):
+    print "Reading file..."
     inputData = {}
     keyOrder = []
+    length = []
+    length.append(0)
     my_file = open(f,"r+")
+    count = 0
     for line in open(f):
         line = my_file.readline()
         s = re.split(" |\n",line)
@@ -13,60 +17,18 @@ def readFile(f):
         s[1:] = [float(x) for x in s[1:]]
         inputData[s[0]] = np.asarray(s[1:])
         keyOrder.append(s[0])
+
+        if len(keyOrder) > 1:
+            s1 = re.split('_',keyOrder[-1])
+            s2 = re.split('_',keyOrder[-2])
+            if s1[:2] != s2[:2]:
+                length.append(count)
+        count += 1
+    length.append(count)
+    # print length
     my_file.close()
-    print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
-    return inputData, keyOrder
-
-def readPickle(label, possibility):
-    keyOrder = []
-    inputData = {}
-    with open(possibility, 'rb') as f:
-        y_prob= pickle.load(f)
-        y = pickle.load(f)
-        y_idx = pickle.load(f)
-    inputLabel = open(label,'r+')
-    for line in open(label):
-        line = inputLabel.readline()
-        s = re.split(',| |\n',line)
-        keyOrder.append(s[0])
-    inputLabel.close()
-    count = 0
-    for key in keyOrder:
-        inputData[key] = np.asarray([float(x) for x in y_prob[count]])
-        count += 1
-    return inputData, keyOrder
-
-def readPickleTest(label, possibility1, possibility2):
-    keyOrder = []
-    inputData = {}
-
-    inputLabel = open(label,'r+')
-    for line in open(label):
-        line = inputLabel.readline()
-        s = re.split(',| |\n',line)
-        keyOrder.append(s[0])
-    inputLabel.close()
-    # print len(keyOrder)
-
-    y_prob = []
-
-    with open(possibility1, 'rb') as f:
-        y_prob = pickle.load(f)
-    # print len(y_prob)
-    count = 0
-    for index in range(len(y_prob)):
-        inputData[keyOrder[index]] = np.asarray([float(x) for x in y_prob[index]])
-        count += 1
-    # print count
-
-    with open(possibility2, 'rb') as f:
-        y_prob= pickle.load(f)
-    # print len(y_prob)
-    for index in range(len(y_prob)):
-        # print index + count
-        inputData[keyOrder[index + count]] = np.asarray([float(x) for x in y_prob[index]])
-
-    return inputData, keyOrder
+    # print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
+    return inputData, keyOrder, length
 
 def dnnReadFile(f1, f2):
     inputData = {}
@@ -109,33 +71,32 @@ def readLabel(f, featureSize):
     return label
 
 
-def writeFile(f1, f2, possibilityVectors, outputData, keyOrder, nnType):
+def writeFile(f1, f2, possibilityVectors, outputData, keyOrder):
 
     print "Writing file..."
     file = open(f1,"w")
     file.write('Id,Prediction' + '\n')
     for index in range(len(keyOrder)):
-        # if index != 0 and index != len(keyOrder) - 1  :
-            # if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
-                # outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-            # elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
-                # outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-            # elif index < len(keyOrder) - 2 and outputData[keyOrder[index]] == outputData[keyOrder[index+1]] and outputData[keyOrder[index]] != outputData[keyOrder[index+2]]:
-                # outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
-                # outputData[keyOrder[index+1]] = outputData[keyOrder[index-1]]
+        if index != 0 and index != len(keyOrder) - 1  :
+            if outputData[keyOrder[index-1]] == outputData[keyOrder[index+1]] :
+                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+            elif outputData[keyOrder[index-1]] != outputData[keyOrder[index]] and outputData[keyOrder[index]] != outputData[keyOrder[index+1]]:
+                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+            elif index < len(keyOrder) - 2 and outputData[keyOrder[index]] == outputData[keyOrder[index+1]] and outputData[keyOrder[index]] != outputData[keyOrder[index+2]]:
+                outputData[keyOrder[index]] = outputData[keyOrder[index-1]]
+                outputData[keyOrder[index+1]] = outputData[keyOrder[index-1]]
         outputData[keyOrder[index]] = mrg48to39(outputData[keyOrder[index]])
         file.write(keyOrder[index] + ',' + outputData[keyOrder[index]] + '\n')
     file.close()
-    if nnType == 'dnn':
-        file = open(f2,"w")
-        for line in possibilityVectors:
-            for index in range(len(line)):
-                if index != len(line) - 1:
-                    file.write(str(line[index]) + " ")
-                else:
-                    file.write(str(line[index]))
-            file.write('\n')
-        file.close()
+    file = open(f2,"w")
+    for line in possibilityVectors:
+        for index in range(len(line)):
+            if index != len(line) - 1:
+                file.write(str(line[index]) + " ")
+            else:
+                file.write(str(line[index]))
+        file.write('\n')
+    file.close()
 
 
 def trimOutput(f1, f2):
@@ -164,6 +125,39 @@ def trimOutput(f1, f2):
         else:
             file.write('\n' + frames[index][0] + "_" + frames[index][1] + "," + idx2chr(frames[index][3]))
             #file.write("\n")
+    file.close()
+
+def deleteSil(f):
+    file = open(f, "r+")
+    seqs = []
+    for line in open(f):
+        line = file.readline()
+        if line[:2] == 'id':
+            continue
+        else:
+            seq = re.split(",|\n", line)
+            # print seq
+            if seq[-1] == '':
+                seq.pop()
+            # print seq
+            if seq[1][0] == 'L':
+                seqTemp = seq[1][1]
+                for i in range(2, len(seq[1])):
+                    seqTemp += seq[1][i]
+            seq[1] = seqTemp
+            if seq[1][-1] == 'L':
+                seqTemp = seq[1][0]
+                for i in range(1, len(seq[1]) - 1):
+                    seqTemp += seq[1][i]
+            seq[1] = seqTemp
+            # print seq
+            seqs.append(seq)
+    file.close()
+
+    file = open(f, "w")
+    file.write('id,phone_sequence' + '\n')
+    for seq in seqs:
+        file.write(seq[0] + ',' + seq[1] + '\n')
     file.close()
 
 
