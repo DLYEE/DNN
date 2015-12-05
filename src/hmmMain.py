@@ -63,6 +63,6 @@ def hmm():
     names, sentences = viterbi()
     hmmIO.writeFile('../hmmFrame.csv', names, sentences)
     hmmIO.trimOutput('../hmmFrame.csv', '../hmm.csv')
-    hmmIO.deleteSil('../hmm.csv')
+    # hmmIO.deleteSil('../hmm.csv')
 
 
