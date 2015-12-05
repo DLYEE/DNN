@@ -6,9 +6,9 @@ import numpy as np
 import time
 
 def viterbi():
-    observationProb, keyOrder, length = IO.readFile('../data/test.prb')
+    observationProb, keyOrder, length = IO.readFile('data/test.prb')
     outputData = {}
-    trainLabel = IO.readTrainLabel('../data/label/train.lab')
+    trainLabel = IO.readTrainLabel('data/label/train.lab')
     transMatrix = hmmFunc.transProb(trainLabel)
 
     def forward(key, preValue, preTrace):
