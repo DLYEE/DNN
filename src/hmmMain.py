@@ -6,6 +6,7 @@ import numpy as np
 import time
 
 def hmm():
+    print "start hmm..."
     def viterbi():
         observationProb, keyOrder, length = hmmIO.readFile('../data/rnnTest.prb')
         outputData = {}
@@ -32,9 +33,9 @@ def hmm():
         # for sentence in range(1, 4):
         timeBegin = time.time()
         for i in range(1, len(length)):
-            print "This sentence starts at ", keyOrder[count+1]
-            print "Sentence Length = ", length[i] - length[i - 1]
-            print "Toatal Length = ", length[i]
+            # print "This sentence starts at ", keyOrder[count+1]
+            # print "Sentence Length = ", length[i] - length[i - 1]
+            # print "Toatal Length = ", length[i]
             timeStart = time.time()
             trace = []
             value = []
@@ -47,11 +48,11 @@ def hmm():
                 else:
                     value, trace = forward(keyOrder[count], value, trace)
             timeEnd = time.time()
-            print "Time Cost = ", timeEnd - timeStart
-            print "Total Time = ", timeEnd - timeBegin
+            # print "Time Cost = ", timeEnd - timeStart
+            # print "Total Time = ", timeEnd - timeBegin
             maxIndex = np.argmax(value)
-            print "max trace: ", trace[maxIndex]
-            print 'max value = ', value[maxIndex], '\n', '\n'
+            # print "max trace: ", trace[maxIndex]
+            # print 'max value = ', value[maxIndex], '\n', '\n'
             s = re.split('_', keyOrder[count])[:2]
             names.append(s[0] + '_' + s[1])
             sentences.append(trace[maxIndex])
@@ -60,8 +61,8 @@ def hmm():
         return names, sentences
 
     names, sentences = viterbi()
-    hmmIO.writeFile('hmmFrame.csv', names, sentences)
-    hmmIO.trimOutput('hmmFrames.csv', 'hmm.csv')
-    hmmIO.deleteSil('hmm.csv')
+    hmmIO.writeFile('../hmmFrame.csv', names, sentences)
+    hmmIO.trimOutput('../hmmFrame.csv', '../hmm.csv')
+    hmmIO.deleteSil('../hmm.csv')
 
 

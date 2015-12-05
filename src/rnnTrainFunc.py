@@ -49,7 +49,7 @@ layerSizes = [48, 128, 48]
 a_0 = theano.shared(np.zeros(layerSizes[1]))
 y_0 = theano.shared(np.zeros(layerSizes[2]))
 # layerRange = T.vector()
-neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 4E-5)
+neuralNetwork = rnnClass.RNN(trainingMode, x_seq, layerSizes, 3E-5)
 
 def stepReLU(z_tm1, a_tm1, Wh, Bh):
     a_t= activate(z_tm1 + T.dot(Wh, a_tm1) + Bh, 'ReLU')
