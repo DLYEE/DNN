@@ -11,7 +11,10 @@ def viterbi():
     trainLabel = IO.readTrainLabel('../data/label/train.lab')
     transMatrix = hmmFunc.transProb(trainLabel)
 
+    #find trace for a sentence
     def forward(key, preValue, preTrace):
+        #preValue = [1.3212,....]
+        #preTrace = [sil, d, s, ...]
         reValue = []
         reTrace = []
         for i in range(0,48):
@@ -30,6 +33,7 @@ def viterbi():
     count = -1
     # for sentence in range(1, 4):
     timeBegin = time.time()
+    #find trace for each sentence
     for i in range(1, len(length)):
         print "This sentence starts at ", keyOrder[count+1]
         print "Sentence Length = ", length[i] - length[i - 1]
@@ -54,8 +58,6 @@ def viterbi():
         s = re.split('_', keyOrder[count])[:2]
         names.append(s[0] + '_' + s[1])
         sentences.append(trace[maxIndex])
-        #preValue = [1.3212,....]
-        #preTrace = [sil, d, s, ...]
     return names, sentences
 
 names, sentences = viterbi()

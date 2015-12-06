@@ -31,6 +31,7 @@ def readFile(f):
     # print "type of readFile inputData = ", type(imputData[keyOrder[0]][0])
     return inputData, keyOrder, length
 
+#read label for training and record the frame by sentences
 def readTrainLabel(f):
     label = []
     labelElement = []
