@@ -1,0 +1,14 @@
+Usage:
+    先到https://drive.google.com/folderview?id=0BwtG7TsJGjj-U2RKT2VTdUN1ZWc&usp=sharing將train.prb, test.prb下載至data資料夾裡
+    然後type:
+        make
+    output file:
+        hmm.csv
+Programming language:
+    python
+Package:
+    import re
+    import sys
+    import math
+    import numpy as np
+    import time
